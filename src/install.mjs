@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// claude-rules 설치기 — 공개·무인증.
-//   curl -fsSL https://github.com/imDangerous/claude-rules/releases/latest/download/install.mjs | node
+// ccx (claude-code-extensions) 설치기 — 공개·무인증.
+//   curl -fsSL https://github.com/imDangerous/claude-code-extensions/releases/latest/download/install.mjs | node
 //   curl -fsSL .../releases/download/v0.1.0/install.mjs | node      # 버전 핀(--ref= 도 가능)
 import { chmodSync, mkdirSync, writeFileSync } from 'node:fs';
 import { homedir, platform } from 'node:os';
 import { join } from 'node:path';
 
-const REPO = 'imDangerous/claude-rules';
+const REPO = 'imDangerous/claude-code-extensions';
 const isWin = platform() === 'win32';
 const argRef = process.argv.find((a) => a.startsWith('--ref='))?.split('=')[1];
 
@@ -41,7 +41,7 @@ for (const u of urls) {
 }
 if (!src) die('bundle.mjs 다운로드 실패');
 
-const dataDir = join(homedir(), '.local', 'share', 'claude-rules');
+const dataDir = join(homedir(), '.local', 'share', 'ccx');
 const binDir = isWin ? dataDir : join(homedir(), '.local', 'bin');
 mkdirSync(dataDir, { recursive: true });
 mkdirSync(binDir, { recursive: true });
@@ -49,11 +49,11 @@ const bundlePath = join(dataDir, 'bundle.mjs');
 writeFileSync(bundlePath, src);
 
 if (isWin) {
-  writeFileSync(join(binDir, 'claude-rules.cmd'), `@node "${bundlePath}" %*\r\n`);
+  writeFileSync(join(binDir, 'ccx.cmd'), `@node "${bundlePath}" %*\r\n`);
 } else {
-  const launcher = join(binDir, 'claude-rules');
+  const launcher = join(binDir, 'ccx');
   writeFileSync(launcher, `#!/bin/sh\nexec node "${bundlePath}" "$@"\n`);
   chmodSync(launcher, 0o755);
 }
-ok(`설치 완료: ${join(binDir, 'claude-rules')}`);
-info('PATH 에 ~/.local/bin 이 없으면 추가하세요.  사용: claude-rules <module> init');
+ok(`설치 완료: ${join(binDir, 'ccx')}`);
+info('PATH 에 ~/.local/bin 이 없으면 추가하세요.  사용: ccx <category> <module> init');

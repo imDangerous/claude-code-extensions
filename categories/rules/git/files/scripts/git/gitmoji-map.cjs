@@ -1,14 +1,14 @@
-// Managed by claude-rules. Do not edit — change .claude-rules/git.json instead.
+// Managed by ccx. Do not edit — change .claude/extends/rules/git/config.json instead.
 //
 // 유효 커밋 타입의 SoT = @commitlint/config-conventional 표준 11개.
-// ticketPrefix / ticketRequired 는 .claude-rules/git.json 에서 런타임에 읽는다
+// ticketPrefix / ticketRequired 는 .claude/extends/rules/git/config.json 에서 런타임에 읽는다
 // (이 파일은 모든 프로젝트에서 바이트-동일).
 const fs = require('node:fs');
 const path = require('node:path');
 
 function loadConfig() {
   try {
-    const p = path.resolve(process.cwd(), '.claude-rules', 'git.json');
+    const p = path.join(__dirname, 'config.json');
     return JSON.parse(fs.readFileSync(p, 'utf8'));
   } catch {
     return {};

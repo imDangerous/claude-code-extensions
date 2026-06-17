@@ -11,8 +11,8 @@
     { "key": "commitMsgCiCheck", "type": "bool", "default": false, "prompt": "CI에서 커밋 메시지도 검사?", "flag": "commit-ci" }
   ],
   "targets": [
-    { "src": "scripts/git/gitmoji-map.cjs", "dest": "scripts/git/gitmoji-map.cjs", "kind": "static" },
-    { "src": "scripts/git/gitmoji-commit.cjs", "dest": "scripts/git/gitmoji-commit.cjs", "kind": "static", "exec": true },
+    { "src": "scripts/git/gitmoji-map.cjs", "dest": ".claude/extends/rules/git/gitmoji-map.cjs", "kind": "static" },
+    { "src": "scripts/git/gitmoji-commit.cjs", "dest": ".claude/extends/rules/git/gitmoji-commit.cjs", "kind": "static", "exec": true },
     { "src": "commitlint.config.cjs", "dest": "commitlint.config.cjs", "kind": "static" },
     { "src": "husky/prepare-commit-msg", "dest": ".husky/prepare-commit-msg", "kind": "hook" },
     { "src": "husky/commit-msg", "dest": ".husky/commit-msg", "kind": "hook" },

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Managed by claude-rules. Do not edit — change .claude-rules/git.json instead.
+// Managed by ccx. Do not edit — change .claude/extends/rules/git/config.json instead.
 //
 // prepare-commit-msg: `type: 제목`(conventional) → `[PREFIX-n] gitmoji 제목`.
 //   - ticketPrefix 설정 시: 헤더에 있으면 보존, 없으면 브랜치명에서 추출. 미설정 시 티켓 생략.

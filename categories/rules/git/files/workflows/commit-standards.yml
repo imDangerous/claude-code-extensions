@@ -1,6 +1,6 @@
 name: Commit Standards
 
-# Managed by claude-rules.
+# Managed by ccx.
 on:
   pull_request:
     types: [opened, edited, reopened, synchronize]
@@ -23,7 +23,7 @@ jobs:
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: printf '%s' "$PR_TITLE" | ./node_modules/.bin/commitlint
-  # >>> claude-rules: commit-messages (optional) >>>
+  # >>> ccx: commit-messages (optional) >>>
   commit-messages:
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -40,4 +40,4 @@ jobs:
           ./node_modules/.bin/commitlint
           --from=${{ github.event.pull_request.base.sha }}
           --to=${{ github.event.pull_request.head.sha }}
-  # <<< claude-rules <<<
+  # <<< ccx <<<

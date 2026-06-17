@@ -1,4 +1,0 @@
-#!/usr/bin/env sh
-# >>> claude-rules (managed: do not edit between markers) >>>
-./node_modules/.bin/commitlint --edit "$1"
-# <<< claude-rules <<<

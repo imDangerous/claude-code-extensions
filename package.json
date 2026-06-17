@@ -1,12 +1,12 @@
 {
-  "name": "claude-rules",
+  "name": "claude-code-extensions",
   "version": "0.1.0",
   "private": false,
   "type": "module",
   "license": "MIT",
-  "description": "Install & manage Claude Code rule-sets (git, …) per module via one CLI. Unofficial.",
-  "bin": { "claude-rules": "dist/bundle.mjs" },
+  "description": "ccx — install & manage Claude Code assets (rules, skills, commands, subagents) per category/module via one CLI. Unofficial.",
+  "bin": { "ccx": "dist/bundle.mjs" },
   "scripts": { "build": "node build.mjs" },
-  "repository": { "type": "git", "url": "github:imDangerous/claude-rules" },
-  "keywords": ["claude", "claude-code", "git", "commitlint", "gitmoji", "conventional-commits", "husky"]
+  "repository": { "type": "git", "url": "github:imDangerous/claude-code-extensions" },
+  "keywords": ["claude", "claude-code", "ccx", "skills", "commands", "subagents", "commitlint", "gitmoji"]
 }

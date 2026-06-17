@@ -1,21 +1,21 @@
 #!/usr/bin/env node
-// claude-rules — Claude Code 룰셋을 모듈 단위로 설치/관리하는 제너릭 CLI.
-//   claude-rules <module> <init|check|doctor|update|remove>
-// 빌드 시 build.mjs 가 아래 placeholder 를 {module: {manifest, files}} 로 치환한다.
+// ccx (claude-code-extensions) — Claude Code 자산을 카테고리/모듈로 설치·관리하는 제너릭 CLI.
+//   ccx <category> <module> <init|check|doctor|update|remove>
+// 빌드 시 build.mjs 가 아래 placeholder 를 {category: {module: {manifest, files}}} 로 치환한다.
 import { execSync } from 'node:child_process';
 import { chmodSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { dirname, join, resolve } from 'node:path';
 import { createInterface } from 'node:readline/promises';
 
-const MODULES = __MODULES__;
+const CATALOG = __CATALOG__;
 const VERSION = '__VERSION__';
-const REPO = 'imDangerous/claude-rules';
+const REPO = 'imDangerous/claude-code-extensions';
 
-const MARK_START = '# >>> claude-rules';
-const MARK_END = '# <<< claude-rules <<<';
-const SENTINEL = 'Managed by claude-rules';
-const configRel = (mod) => join('.claude-rules', `${mod}.json`);
+const MARK_START = '# >>> ccx';
+const MARK_END = '# <<< ccx <<<';
+const SENTINEL = 'Managed by ccx';
+const configRel = (cat, mod) => join('.claude', 'extends', cat, mod, 'config.json');
 
 const c = {
   ok: (m) => console.log(`\x1b[32m[✓]\x1b[0m ${m}`),
@@ -71,10 +71,10 @@ const ciInstall = (pm) =>
   })[pm];
 const execPrefix = (pm) => ({ pnpm: 'pnpm exec', npm: 'npm exec', yarn: 'yarn', bun: 'bunx' })[pm];
 
-const defaults = (manifest) => Object.fromEntries(manifest.questions.map((q) => [q.key, q.default]));
+const defaults = (manifest) => Object.fromEntries((manifest.questions || []).map((q) => [q.key, q.default]));
 
-function readConfig(root, mod) {
-  const p = join(root, configRel(mod));
+function readConfig(root, cat, mod) {
+  const p = join(root, configRel(cat, mod));
   if (!existsSync(p)) return null;
   try {
     return JSON.parse(read(p));
@@ -85,6 +85,15 @@ function readConfig(root, mod) {
 
 const resolvePM = (cfg, root) =>
   cfg.packageManager && cfg.packageManager !== 'auto' ? cfg.packageManager : detectPM(root);
+
+function isGitIgnored(root, relPath) {
+  try {
+    execSync(`git check-ignore "${relPath}"`, { cwd: root, stdio: ['pipe', 'pipe', 'ignore'] });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 function render(t, files, cfg, pm) {
   let s = files[t.src];
@@ -97,7 +106,7 @@ function render(t, files, cfg, pm) {
     for (const b of t.blocks) {
       if (cfg[b.enabledIf]) continue;
       const lines = s.split('\n');
-      const start = lines.findIndex((l) => l.includes(`claude-rules: ${b.name}`));
+      const start = lines.findIndex((l) => l.includes(`ccx: ${b.name}`));
       const end = lines.findIndex((l, i) => i > start && l.trim() === MARK_END);
       if (start !== -1 && end !== -1) lines.splice(start, end - start + 1);
       s = lines.join('\n');
@@ -146,9 +155,9 @@ function hookManagerConflict(root) {
   return competing;
 }
 
-function cmdCheck(root, mod, cfg, pm, quiet) {
+function cmdCheck(root, cat, mod, cfg, pm, quiet) {
   const { manifest, files } = mod;
-  if (!quiet) c.info(`대상: ${root}  모듈: ${manifest.name}`);
+  if (!quiet) c.info(`대상: ${root}  ${cat}/${manifest.name}`);
   let conflicts = 0;
   let hard = 0;
   if (manifest.husky) {
@@ -160,7 +169,7 @@ function cmdCheck(root, mod, cfg, pm, quiet) {
   }
   for (const t of activeTargets(manifest, cfg)) {
     const status = classify(root, t, render(t, files, cfg, pm));
-    const line = `${t.dest.padEnd(40)} ${status}`;
+    const line = `${t.dest.padEnd(44)} ${status}`;
     if (status === 'FOREIGN') {
       c.err(`${line} — 외부 내용(백업 후 채택 필요)`);
       conflicts++;
@@ -178,7 +187,7 @@ async function resolveConfig(manifest, args, existing) {
   const cfg = {};
   let rl;
   if (!yes) rl = createInterface({ input: process.stdin, output: process.stdout });
-  for (const q of manifest.questions) {
+  for (const q of manifest.questions || []) {
     const cur = existing && q.key in existing ? existing[q.key] : q.default;
     let val = cur;
     if (q.flag && q.flag in flags) {
@@ -225,24 +234,30 @@ function writeTarget(root, t, rendered, status) {
     return;
   }
   if (status === 'FOREIGN' && existsSync(p)) {
-    writeFileSync(`${p}.link-bak`, read(p));
-    c.warn(`백업: ${t.dest}.link-bak`);
+    writeFileSync(`${p}.ccx-bak`, read(p));
+    c.warn(`백업: ${t.dest}.ccx-bak`);
   }
   write(p, rendered);
   if (t.exec) chmodSync(p, 0o755);
 }
 
-async function cmdInit(root, mod, args) {
+function warnIfIgnored(root, cat, mod) {
+  if (isGitIgnored(root, configRel(cat, mod))) {
+    c.warn(`.claude/extends/ 가 gitignore 됩니다 — 설정이 추적 안 됩니다. .gitignore 에 '!.claude/extends/' 추가 권장.`);
+  }
+}
+
+async function cmdInit(root, cat, mod, args) {
   const { manifest, files } = mod;
   const flags = args.flags;
   const force = !!flags.force;
   const yes = !!flags.yes;
   const noInstall = !!flags['no-install'];
 
-  const cfg = await resolveConfig(manifest, args, readConfig(root, manifest.name));
+  const cfg = await resolveConfig(manifest, args, readConfig(root, cat, manifest.name));
   const pm = resolvePM(cfg, root);
 
-  const code = cmdCheck(root, mod, cfg, pm, false);
+  const code = cmdCheck(root, cat, mod, cfg, pm, false);
   if (code === 2) {
     c.err('하드 충돌 — 중단.');
     return 2;
@@ -256,8 +271,9 @@ async function cmdInit(root, mod, args) {
     return 0;
   }
 
-  write(join(root, configRel(manifest.name)), `${JSON.stringify(cfg, null, 2)}\n`);
-  c.ok(configRel(manifest.name));
+  warnIfIgnored(root, cat, manifest.name);
+  write(join(root, configRel(cat, manifest.name)), `${JSON.stringify(cfg, null, 2)}\n`);
+  c.ok(configRel(cat, manifest.name));
 
   ensurePrepareScript(root);
   if (!noInstall && manifest.deps?.length) {
@@ -283,14 +299,15 @@ async function cmdInit(root, mod, args) {
     writeTarget(root, t, rendered, status);
     c.ok(`${t.dest} (${status})`);
   }
-  c.ok(`완료 — ${manifest.name} 모듈 설치됨.`);
+  c.ok(`완료 — ${cat}/${manifest.name} 설치됨.`);
   return 0;
 }
 
-function cmdDoctor(root, mod, cfg, pm) {
+function cmdDoctor(root, cat, mod, cfg, pm) {
   const { manifest, files } = mod;
-  c.info(`claude-rules v${VERSION} · 모듈 ${manifest.name}`);
+  c.info(`ccx v${VERSION} · ${cat}/${manifest.name}`);
   let issues = 0;
+  warnIfIgnored(root, cat, manifest.name);
   if (manifest.husky) {
     const competing = hookManagerConflict(root);
     if (competing.length) {
@@ -315,12 +332,12 @@ function cmdDoctor(root, mod, cfg, pm) {
       issues++;
     }
   }
-  if (issues) c.warn(`이슈 ${issues}건 — 'claude-rules ${manifest.name} update' 로 복구 가능`);
+  if (issues) c.warn(`이슈 ${issues}건 — 'ccx ${cat} ${manifest.name} update' 로 복구 가능`);
   else c.ok('모두 정상');
   return issues ? 1 : 0;
 }
 
-function cmdUpdate(root, mod, cfg, pm) {
+function cmdUpdate(root, cat, mod, cfg, pm) {
   const { manifest, files } = mod;
   for (const t of activeTargets(manifest, cfg)) {
     const rendered = render(t, files, cfg, pm);
@@ -337,7 +354,7 @@ function cmdUpdate(root, mod, cfg, pm) {
   return 0;
 }
 
-function cmdRemove(root, mod) {
+function cmdRemove(root, cat, mod) {
   const { manifest } = mod;
   for (const t of manifest.targets) {
     const p = join(root, t.dest);
@@ -364,31 +381,33 @@ function cmdRemove(root, mod) {
       c.ok(`removed ${t.dest}`);
     } else c.warn(`skip ${t.dest} (외부 내용 — 보존)`);
   }
-  const cfgp = join(root, configRel(manifest.name));
+  const cfgp = join(root, configRel(cat, manifest.name));
   if (existsSync(cfgp)) {
     rmSync(cfgp);
-    c.ok(`removed ${configRel(manifest.name)}`);
+    c.ok(`removed ${configRel(cat, manifest.name)}`);
   }
   c.ok('제거 완료 (deps/husky는 수동 정리)');
   return 0;
 }
 
-const HELP = `claude-rules v${VERSION}
+const HELP = `ccx (claude-code-extensions) v${VERSION}
 
-  claude-rules <module> init      룰셋 설치 (대화형)
-  claude-rules <module> check     설치 전 충돌 점검 (exit 0/1/2)
-  claude-rules <module> doctor    설치 상태 점검
-  claude-rules <module> update    표준 파일 최신화 (.claude-rules/<module>.json 보존)
-  claude-rules <module> remove    설치물 제거
-  claude-rules list               사용 가능한 모듈
-  claude-rules self-update        CLI 최신 재설치 안내
+  ccx <category> <module> init      자산 설치 (대화형)
+  ccx <category> <module> check     설치 전 충돌 점검 (exit 0/1/2)
+  ccx <category> <module> doctor    설치 상태 점검
+  ccx <category> <module> update    최신화 (.claude/extends/<cat>/<mod>/config.json 보존)
+  ccx <category> <module> remove    제거
+  ccx list                          사용 가능한 카테고리/모듈
+  ccx self-update                   CLI 최신 재설치 안내
 
-모듈: ${Object.keys(MODULES).join(', ')}
+예: ccx rules git init   |   ccx skills pr-review init
 옵션: --yes --force --dry-run --no-install --dir <path>  (+ 모듈별 플래그)`;
 
 function listModules() {
-  c.plain('모듈:');
-  for (const [name, m] of Object.entries(MODULES)) c.plain(`  ${name.padEnd(10)} ${m.manifest.description || ''}`);
+  c.plain('카테고리 / 모듈:');
+  for (const [cat, mods] of Object.entries(CATALOG))
+    for (const [name, m] of Object.entries(mods))
+      c.plain(`  ${`${cat}/${name}`.padEnd(22)} ${m.manifest.description || ''}`);
 }
 
 async function main() {
@@ -402,32 +421,39 @@ async function main() {
   if (first === 'self-update')
     return c.info(`재설치: curl -fsSL https://github.com/${REPO}/releases/latest/download/install.mjs | node`);
 
-  const mod = MODULES[first];
-  if (!mod) {
-    c.err(`알 수 없는 모듈: ${first}`);
+  const cat = CATALOG[first];
+  if (!cat) {
+    c.err(`알 수 없는 카테고리: ${first}`);
     listModules();
     process.exit(1);
   }
-  const cmd = args._[1] || 'init';
-  const cfg = readConfig(root, first) || defaults(mod.manifest);
+  const modName = args._[1];
+  const mod = cat[modName];
+  if (!mod) {
+    c.err(`알 수 없는 모듈: ${first}/${modName || ''}`);
+    listModules();
+    process.exit(1);
+  }
+  const cmd = args._[2] || 'init';
+  const cfg = readConfig(root, first, modName) || defaults(mod.manifest);
   const pm = resolvePM(cfg, root);
 
   let code = 0;
   switch (cmd) {
     case 'init':
-      code = await cmdInit(root, mod, args);
+      code = await cmdInit(root, first, mod, args);
       break;
     case 'check':
-      code = cmdCheck(root, mod, cfg, pm, false);
+      code = cmdCheck(root, first, mod, cfg, pm, false);
       break;
     case 'doctor':
-      code = cmdDoctor(root, mod, cfg, pm);
+      code = cmdDoctor(root, first, mod, cfg, pm);
       break;
     case 'update':
-      code = cmdUpdate(root, mod, cfg, pm);
+      code = cmdUpdate(root, first, mod, cfg, pm);
       break;
     case 'remove':
-      code = cmdRemove(root, mod);
+      code = cmdRemove(root, first, mod);
       break;
     default:
       c.err(`알 수 없는 명령: ${cmd}`);
