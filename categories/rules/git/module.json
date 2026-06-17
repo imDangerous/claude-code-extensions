@@ -4,7 +4,7 @@
   "deps": ["@commitlint/cli", "@commitlint/config-conventional", "husky"],
   "husky": true,
   "questions": [
-    { "key": "ticketPrefix", "type": "string", "default": "", "prompt": "티켓 prefix (없으면 Enter)", "flag": "ticket" },
+    { "key": "ticketPrefix", "type": "string", "default": "", "prompt": "티켓 prefix (없으면 Enter)", "flag": "ticket", "validate": "^[A-Za-z0-9]*$", "validateHint": "영문/숫자만 (예: RP) — 정규식 메타문자 불가" },
     { "key": "ticketRequired", "type": "bool", "default": false, "prompt": "티켓 필수?", "flag": "ticket-required" },
     { "key": "packageManager", "type": "string", "default": "auto", "prompt": "패키지 매니저 (auto/pnpm/npm/yarn/bun)", "flag": "pm" },
     { "key": "prTitleCheck", "type": "bool", "default": true, "prompt": "PR 제목 CI 켤까?", "flag": "no-pr-title", "flagInverts": true },

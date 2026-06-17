@@ -2,8 +2,8 @@
 // ccx (claude-code-extensions) — Claude Code 자산을 카테고리/모듈로 설치·관리하는 제너릭 CLI.
 //   ccx <category> <module> <init|check|doctor|update|remove>
 // 빌드 시 build.mjs 가 아래 placeholder 를 {category: {module: {manifest, files}}} 로 치환한다.
-import { execSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync, execSync } from 'node:child_process';
+import { chmodSync, existsSync, mkdirSync, readFileSync, rmSync, rmdirSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { dirname, join, resolve } from 'node:path';
 import { createInterface } from 'node:readline/promises';
@@ -62,12 +62,14 @@ const installCmd = (pm, deps) =>
     yarn: `yarn add -D ${deps.join(' ')}`,
     bun: `bun add -d ${deps.join(' ')}`,
   })[pm];
+// CI에서만 쓰임(워크플로 __INSTALL_CMD__). --ignore-scripts: 신뢰 불가 PR 코드의
+// 설치 lifecycle 스크립트 실행을 막는다(PR 제목/메시지 린트엔 불필요).
 const ciInstall = (pm) =>
   ({
-    pnpm: 'pnpm install --frozen-lockfile',
-    npm: 'npm ci',
-    yarn: 'yarn install --frozen-lockfile',
-    bun: 'bun install --frozen-lockfile',
+    pnpm: 'pnpm install --frozen-lockfile --ignore-scripts',
+    npm: 'npm ci --ignore-scripts',
+    yarn: 'yarn install --frozen-lockfile --ignore-scripts',
+    bun: 'bun install --frozen-lockfile --ignore-scripts',
   })[pm];
 const execPrefix = (pm) => ({ pnpm: 'pnpm exec', npm: 'npm exec', yarn: 'yarn', bun: 'bunx' })[pm];
 
@@ -88,15 +90,15 @@ const resolvePM = (cfg, root) =>
 
 function isGitIgnored(root, relPath) {
   try {
-    execSync(`git check-ignore "${relPath}"`, { cwd: root, stdio: ['pipe', 'pipe', 'ignore'] });
+    execFileSync('git', ['check-ignore', relPath], { cwd: root, stdio: ['pipe', 'pipe', 'ignore'] });
     return true;
   } catch {
     return false;
   }
 }
 
-function render(t, files, cfg, pm) {
-  let s = files[t.src];
+function render(t, files, cfg, pm, id) {
+  let s = files[t.src].replaceAll('__CCX_ID__', id); // 관리 블록 마커를 모듈별로 네임스페이스
   if (t.placeholders) {
     for (const [ph, val] of Object.entries(t.placeholders)) {
       s = s.replaceAll(ph, val === '@ciInstall' ? ciInstall(pm) : val);
@@ -115,29 +117,98 @@ function render(t, files, cfg, pm) {
   return s;
 }
 
-function extractBlock(content) {
-  const lines = content.split('\n');
-  const s = lines.findIndex((l) => l.startsWith(MARK_START));
+// 특정 모듈(id)의 관리 블록 [start, end] 라인 인덱스. 같은 파일에 여러 모듈 블록이 공존할 수 있다.
+function findBlock(lines, id) {
+  const s = lines.findIndex((l) => l.startsWith(MARK_START) && l.includes(`ccx:${id}`));
+  if (s === -1) return [-1, -1];
   const e = lines.findIndex((l, i) => i >= s && l.trim() === MARK_END);
+  return [s, e];
+}
+
+function extractBlock(content, id) {
+  const lines = content.split('\n');
+  const [s, e] = findBlock(lines, id);
   if (s === -1 || e === -1) return null;
   return lines.slice(s, e + 1).join('\n');
 }
 
-function classify(root, t, rendered) {
+// 비교는 줄바꿈 정규화 후 수행 — Windows(core.autocrlf=true)에서 LF↔CRLF 차이로 인한 오탐(드리프트) 방지.
+const eol = (s) => s.replace(/\r\n/g, '\n');
+
+function classify(root, t, rendered, id) {
   const p = join(root, t.dest);
   if (!existsSync(p)) return 'CREATE';
-  const cur = read(p);
+  const cur = eol(read(p));
+  const ren = eol(rendered);
   if (t.kind === 'hook') {
-    if (cur.includes(MARK_START)) return extractBlock(cur) === extractBlock(rendered) ? 'IDENTICAL' : 'UPDATE';
-    return 'MERGE';
+    const mine = extractBlock(cur, id);
+    if (mine !== null) return mine === extractBlock(ren, id) ? 'IDENTICAL' : 'UPDATE';
+    return 'MERGE'; // 이 모듈 블록은 없음 — 기존 내용(타 모듈/사용자) 보존하며 추가
   }
-  if (sha(cur) === sha(rendered)) return 'IDENTICAL';
+  if (sha(cur) === sha(ren)) return 'IDENTICAL';
   if (cur.includes(SENTINEL)) return 'UPDATE';
   return 'FOREIGN';
 }
 
 const activeTargets = (manifest, cfg) =>
   manifest.targets.filter((t) => !t.enabledIf || cfg[t.enabledIf]);
+
+// enabledIf 가 꺼져 비활성이지만 과거 설치로 남아있을 수 있는 타깃.
+const inactiveTargets = (manifest, cfg) =>
+  manifest.targets.filter((t) => t.enabledIf && !cfg[t.enabledIf]);
+
+const isManaged = (p, kind, id) =>
+  kind === 'hook' ? extractBlock(eol(read(p)), id) !== null : read(p).includes(SENTINEL);
+
+// 파일 제거 후 비게 된 상위 디렉터리를 root 직전까지 정리(rmdirSync 는 빈 디렉터리만 삭제).
+function pruneEmptyDirs(root, dest) {
+  const stop = resolve(root);
+  let dir = dirname(join(root, dest));
+  while (resolve(dir) !== stop && resolve(dir).startsWith(stop)) {
+    try {
+      rmdirSync(dir);
+    } catch {
+      break; // 비어있지 않거나 접근 불가 → 멈춤
+    }
+    dir = dirname(dir);
+  }
+}
+
+// 단일 타깃의 ccx 관리 내용 제거. 반환: 'removed' | 'block-removed' | 'skip' | null(없음).
+function removeTarget(root, t, id) {
+  const p = join(root, t.dest);
+  if (!existsSync(p)) return null;
+  if (t.kind === 'hook') {
+    const cur = read(p).split('\n');
+    const [s, e] = findBlock(cur, id);
+    if (s === -1 || e === -1) return 'skip';
+    cur.splice(s, e - s + 1);
+    const rest = cur.join('\n').trim();
+    const hasOther = cur.some((l) => l.startsWith(MARK_START)); // 타 모듈 블록 잔존 여부
+    if (rest && (hasOther || rest !== '#!/usr/bin/env sh')) {
+      write(p, `${rest}\n`); // 타 모듈 블록/사용자 내용 보존
+      return 'block-removed';
+    }
+    rmSync(p);
+    pruneEmptyDirs(root, t.dest);
+    return 'removed';
+  }
+  if (read(p).includes(SENTINEL)) {
+    rmSync(p);
+    pruneEmptyDirs(root, t.dest);
+    return 'removed';
+  }
+  return 'skip';
+}
+
+// 비활성 타깃 중 과거 설치로 남은 ccx 관리 파일을 정리(orphan cleanup).
+function cleanupOrphans(root, manifest, cfg, id) {
+  for (const t of inactiveTargets(manifest, cfg)) {
+    const r = removeTarget(root, t, id);
+    if (r === 'removed' || r === 'block-removed') c.ok(`${t.dest} (비활성 — 제거)`);
+    else if (r === 'skip') c.warn(`${t.dest} — 비활성이나 외부 내용, 보존`);
+  }
+}
 
 function hookManagerConflict(root) {
   let hooksPath = '';
@@ -157,6 +228,7 @@ function hookManagerConflict(root) {
 
 function cmdCheck(root, cat, mod, cfg, pm, quiet) {
   const { manifest, files } = mod;
+  const id = `${cat}/${manifest.name}`;
   if (!quiet) c.info(`대상: ${root}  ${cat}/${manifest.name}`);
   let conflicts = 0;
   let hard = 0;
@@ -168,7 +240,7 @@ function cmdCheck(root, cat, mod, cfg, pm, quiet) {
     }
   }
   for (const t of activeTargets(manifest, cfg)) {
-    const status = classify(root, t, render(t, files, cfg, pm));
+    const status = classify(root, t, render(t, files, cfg, pm, id), id);
     const line = `${t.dest.padEnd(44)} ${status}`;
     if (status === 'FOREIGN') {
       c.err(`${line} — 외부 내용(백업 후 채택 필요)`);
@@ -204,6 +276,12 @@ async function resolveConfig(manifest, args, existing) {
     cfg[q.key] = val;
   }
   if (rl) rl.close();
+  // 선언적 검증 — 신뢰 불가 입력이 .cjs 의 new RegExp() 로 흘러드는 것 차단(주입/ReDoS).
+  for (const q of manifest.questions || []) {
+    if (q.validate && !new RegExp(q.validate).test(String(cfg[q.key] ?? ''))) {
+      throw new Error(`'${q.key}' 값이 유효하지 않습니다: "${cfg[q.key]}" — ${q.validateHint || `허용 패턴 ${q.validate}`}`);
+    }
+  }
   return cfg;
 }
 
@@ -218,16 +296,16 @@ function ensurePrepareScript(root) {
   }
 }
 
-function writeTarget(root, t, rendered, status) {
+function writeTarget(root, t, rendered, status, id) {
   const p = join(root, t.dest);
   if (t.kind === 'hook') {
+    const block = extractBlock(rendered, id);
     if (!existsSync(p)) write(p, rendered);
-    else if (status === 'MERGE') write(p, `${read(p).replace(/\s*$/, '')}\n\n${extractBlock(rendered)}\n`);
+    else if (status === 'MERGE') write(p, `${read(p).replace(/\s*$/, '')}\n\n${block}\n`);
     else if (status === 'UPDATE') {
       const cur = read(p).split('\n');
-      const s = cur.findIndex((l) => l.startsWith(MARK_START));
-      const e = cur.findIndex((l, i) => i >= s && l.trim() === MARK_END);
-      cur.splice(s, e - s + 1, extractBlock(rendered));
+      const [s, e] = findBlock(cur, id);
+      cur.splice(s, e - s + 1, block);
       write(p, cur.join('\n'));
     }
     chmodSync(p, 0o755);
@@ -249,6 +327,7 @@ function warnIfIgnored(root, cat, mod) {
 
 async function cmdInit(root, cat, mod, args) {
   const { manifest, files } = mod;
+  const id = `${cat}/${manifest.name}`;
   const flags = args.flags;
   const force = !!flags.force;
   const yes = !!flags.yes;
@@ -286,8 +365,8 @@ async function cmdInit(root, cat, mod, args) {
   } else if (noInstall) c.warn('--no-install: deps/husky 생략 (파일만)');
 
   for (const t of activeTargets(manifest, cfg)) {
-    const rendered = render(t, files, cfg, pm);
-    const status = classify(root, t, rendered);
+    const rendered = render(t, files, cfg, pm, id);
+    const status = classify(root, t, rendered, id);
     if (status === 'IDENTICAL') {
       c.ok(`${t.dest} (변경 없음)`);
       continue;
@@ -296,15 +375,17 @@ async function cmdInit(root, cat, mod, args) {
       c.warn(`${t.dest} — 외부 내용, 스킵 (--force 로 백업+덮어쓰기)`);
       continue;
     }
-    writeTarget(root, t, rendered, status);
+    writeTarget(root, t, rendered, status, id);
     c.ok(`${t.dest} (${status})`);
   }
+  cleanupOrphans(root, manifest, cfg, id);
   c.ok(`완료 — ${cat}/${manifest.name} 설치됨.`);
   return 0;
 }
 
 function cmdDoctor(root, cat, mod, cfg, pm) {
   const { manifest, files } = mod;
+  const id = `${cat}/${manifest.name}`;
   c.info(`ccx v${VERSION} · ${cat}/${manifest.name}`);
   let issues = 0;
   warnIfIgnored(root, cat, manifest.name);
@@ -325,10 +406,17 @@ function cmdDoctor(root, cat, mod, cfg, pm) {
     }
   }
   for (const t of activeTargets(manifest, cfg)) {
-    const status = classify(root, t, render(t, files, cfg, pm));
+    const status = classify(root, t, render(t, files, cfg, pm, id), id);
     if (status === 'IDENTICAL') c.ok(t.dest);
     else {
       c.warn(`${t.dest} — ${status === 'CREATE' ? '없음(미설치)' : `${status}(드리프트)`}`);
+      issues++;
+    }
+  }
+  for (const t of inactiveTargets(manifest, cfg)) {
+    const p = join(root, t.dest);
+    if (existsSync(p) && isManaged(p, t.kind, id)) {
+      c.warn(`${t.dest} — 비활성 설정인데 남아있음(orphan)`);
       issues++;
     }
   }
@@ -339,51 +427,36 @@ function cmdDoctor(root, cat, mod, cfg, pm) {
 
 function cmdUpdate(root, cat, mod, cfg, pm) {
   const { manifest, files } = mod;
+  const id = `${cat}/${manifest.name}`;
   for (const t of activeTargets(manifest, cfg)) {
-    const rendered = render(t, files, cfg, pm);
-    const status = classify(root, t, rendered);
+    const rendered = render(t, files, cfg, pm, id);
+    const status = classify(root, t, rendered, id);
     if (status === 'IDENTICAL') continue;
     if (status === 'FOREIGN') {
       c.warn(`${t.dest} — 외부 내용, 건너뜀(수동 확인)`);
       continue;
     }
-    writeTarget(root, t, rendered, status);
+    writeTarget(root, t, rendered, status, id);
     c.ok(`${t.dest} (${status})`);
   }
+  cleanupOrphans(root, manifest, cfg, id);
   c.ok('update 완료');
   return 0;
 }
 
 function cmdRemove(root, cat, mod) {
   const { manifest } = mod;
+  const id = `${cat}/${manifest.name}`;
   for (const t of manifest.targets) {
-    const p = join(root, t.dest);
-    if (!existsSync(p)) continue;
-    if (t.kind === 'hook') {
-      const cur = read(p).split('\n');
-      const s = cur.findIndex((l) => l.startsWith(MARK_START));
-      if (s === -1) {
-        c.warn(`skip ${t.dest} (관리 블록 없음)`);
-        continue;
-      }
-      const e = cur.findIndex((l, i) => i >= s && l.trim() === MARK_END);
-      cur.splice(s, e - s + 1);
-      const rest = cur.join('\n').trim();
-      if (rest && rest !== '#!/usr/bin/env sh') {
-        write(p, `${rest}\n`);
-        c.ok(`removed block ${t.dest}`);
-      } else {
-        rmSync(p);
-        c.ok(`removed ${t.dest}`);
-      }
-    } else if (read(p).includes(SENTINEL)) {
-      rmSync(p);
-      c.ok(`removed ${t.dest}`);
-    } else c.warn(`skip ${t.dest} (외부 내용 — 보존)`);
+    const r = removeTarget(root, t, id);
+    if (r === 'removed') c.ok(`removed ${t.dest}`);
+    else if (r === 'block-removed') c.ok(`removed block ${t.dest}`);
+    else if (r === 'skip') c.warn(`skip ${t.dest} (외부 내용 — 보존)`);
   }
   const cfgp = join(root, configRel(cat, manifest.name));
   if (existsSync(cfgp)) {
     rmSync(cfgp);
+    pruneEmptyDirs(root, configRel(cat, manifest.name));
     c.ok(`removed ${configRel(cat, manifest.name)}`);
   }
   c.ok('제거 완료 (deps/husky는 수동 정리)');
