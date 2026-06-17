@@ -1,0 +1,43 @@
+name: Commit Standards
+
+# Managed by link-rules-git.
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  pr-title:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: __INSTALL_CMD__
+      - name: Lint PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: printf '%s' "$PR_TITLE" | ./node_modules/.bin/commitlint
+  # >>> link-rules-git: commit-messages (optional) >>>
+  commit-messages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: __INSTALL_CMD__
+      - name: Lint commit messages in PR range
+        run: >-
+          ./node_modules/.bin/commitlint
+          --from=${{ github.event.pull_request.base.sha }}
+          --to=${{ github.event.pull_request.head.sha }}
+  # <<< link-rules-git <<<

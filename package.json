@@ -1,0 +1,12 @@
+{
+  "name": "link-rules-git",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "license": "MIT",
+  "description": "Install & manage a Conventional Commits + gitmoji + optional ticket-prefix git standard via one CLI.",
+  "bin": { "link-rules-git": "dist/bundle.mjs" },
+  "scripts": { "build": "node build.mjs" },
+  "repository": { "type": "git", "url": "github:imDangerous/rules-git" },
+  "keywords": ["git", "commitlint", "gitmoji", "conventional-commits", "husky", "hooks"]
+}
