@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // ccx (claude-code-extensions) 설치기 — 공개·무인증.
 //   curl -fsSL https://github.com/imDangerous/claude-code-extensions/releases/latest/download/install.mjs | node
-//   curl -fsSL .../releases/download/v0.1.0/install.mjs | node      # 버전 핀(--ref= 도 가능)
+//   curl -fsSL .../releases/download/v1.0.1/install.mjs | node      # 버전 핀(--ref= 도 가능)
 import { chmodSync, mkdirSync, writeFileSync } from 'node:fs';
 import { homedir, platform } from 'node:os';
 import { join } from 'node:path';
