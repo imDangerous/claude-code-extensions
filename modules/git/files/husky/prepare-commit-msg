@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+# >>> claude-rules (managed: do not edit between markers) >>>
+node scripts/git/gitmoji-commit.cjs "$1" "$2"
+# <<< claude-rules <<<

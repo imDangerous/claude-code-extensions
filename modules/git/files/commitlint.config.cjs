@@ -1,4 +1,4 @@
-// Managed by link-rules-git. Do not edit — change .link/rules-git.json instead.
+// Managed by claude-rules. Do not edit — change .claude-rules/git.json instead.
 //
 // 표준 Conventional Commits 룰(config-conventional)을 상속하고,
 // 헤더 형식만 `[PREFIX-n] gitmoji 제목`으로 재정의한다.

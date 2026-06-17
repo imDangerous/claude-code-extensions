@@ -1,9 +1,9 @@
-<!-- Managed by link-rules-git -->
-# Git 커밋/PR 규약 (link-rules-git 관리)
+<!-- Managed by claude-rules -->
+# Git 커밋/PR 규약 (claude-rules 관리)
 
 > 이 파일과 `scripts/git/*`, `commitlint.config.cjs`, `.husky/*`, 커밋 관련 워크플로는
-> **`link-rules-git`이 관리**한다. 직접 수정하지 말 것 — 값은 `.link/rules-git.json`을 바꾸고
-> `link-rules-git update` / `link-rules-git doctor`로 갱신·점검한다.
+> **`claude-rules`이 관리**한다. 직접 수정하지 말 것 — 값은 `.claude-rules/git.json`을 바꾸고
+> `claude-rules git update` / `claude-rules git doctor`로 갱신·점검한다.
 
 ## 커밋 메시지
 
@@ -32,7 +32,7 @@
 
 커밋과 동일 형식 `[<TICKET>-n] gitmoji 제목`. CI(`commit-standards.yml`)가 같은 commitlint 규칙으로 강제.
 
-## 설정 (`.link/rules-git.json`)
+## 설정 (`.claude-rules/git.json`)
 
 ```jsonc
 { "ticketPrefix": "", "ticketRequired": false, "packageManager": "auto",

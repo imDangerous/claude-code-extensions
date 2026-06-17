@@ -1,4 +1,0 @@
-#!/usr/bin/env sh
-# >>> link-rules-git (managed: do not edit between markers) >>>
-node scripts/git/gitmoji-commit.cjs "$1" "$2"
-# <<< link-rules-git <<<

@@ -1,0 +1,29 @@
+{
+  "name": "git",
+  "description": "Conventional Commits + gitmoji + optional ticket prefix (husky/commitlint/PR CI)",
+  "deps": ["@commitlint/cli", "@commitlint/config-conventional", "husky"],
+  "husky": true,
+  "questions": [
+    { "key": "ticketPrefix", "type": "string", "default": "", "prompt": "티켓 prefix (없으면 Enter)", "flag": "ticket" },
+    { "key": "ticketRequired", "type": "bool", "default": false, "prompt": "티켓 필수?", "flag": "ticket-required" },
+    { "key": "packageManager", "type": "string", "default": "auto", "prompt": "패키지 매니저 (auto/pnpm/npm/yarn/bun)", "flag": "pm" },
+    { "key": "prTitleCheck", "type": "bool", "default": true, "prompt": "PR 제목 CI 켤까?", "flag": "no-pr-title", "flagInverts": true },
+    { "key": "commitMsgCiCheck", "type": "bool", "default": false, "prompt": "CI에서 커밋 메시지도 검사?", "flag": "commit-ci" }
+  ],
+  "targets": [
+    { "src": "scripts/git/gitmoji-map.cjs", "dest": "scripts/git/gitmoji-map.cjs", "kind": "static" },
+    { "src": "scripts/git/gitmoji-commit.cjs", "dest": "scripts/git/gitmoji-commit.cjs", "kind": "static", "exec": true },
+    { "src": "commitlint.config.cjs", "dest": "commitlint.config.cjs", "kind": "static" },
+    { "src": "husky/prepare-commit-msg", "dest": ".husky/prepare-commit-msg", "kind": "hook" },
+    { "src": "husky/commit-msg", "dest": ".husky/commit-msg", "kind": "hook" },
+    {
+      "src": "workflows/commit-standards.yml",
+      "dest": ".github/workflows/commit-standards.yml",
+      "kind": "static",
+      "enabledIf": "prTitleCheck",
+      "placeholders": { "__INSTALL_CMD__": "@ciInstall" },
+      "blocks": [{ "name": "commit-messages", "enabledIf": "commitMsgCiCheck" }]
+    },
+    { "src": "rules/git.md", "dest": ".claude/rules/git.md", "kind": "doc" }
+  ]
+}

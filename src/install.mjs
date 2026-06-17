@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// link-rules-git 설치기 — 공개·무인증.
-//   curl -fsSL https://github.com/imDangerous/rules-git/releases/latest/download/install.mjs | node
+// claude-rules 설치기 — 공개·무인증.
+//   curl -fsSL https://github.com/imDangerous/claude-rules/releases/latest/download/install.mjs | node
 //   curl -fsSL .../releases/download/v0.1.0/install.mjs | node      # 버전 핀(--ref= 도 가능)
 import { chmodSync, mkdirSync, writeFileSync } from 'node:fs';
 import { homedir, platform } from 'node:os';
 import { join } from 'node:path';
 
-const REPO = 'imDangerous/rules-git';
+const REPO = 'imDangerous/claude-rules';
 const isWin = platform() === 'win32';
 const argRef = process.argv.find((a) => a.startsWith('--ref='))?.split('=')[1];
 
@@ -41,7 +41,7 @@ for (const u of urls) {
 }
 if (!src) die('bundle.mjs 다운로드 실패');
 
-const dataDir = join(homedir(), '.local', 'share', 'link-rules-git');
+const dataDir = join(homedir(), '.local', 'share', 'claude-rules');
 const binDir = isWin ? dataDir : join(homedir(), '.local', 'bin');
 mkdirSync(dataDir, { recursive: true });
 mkdirSync(binDir, { recursive: true });
@@ -49,11 +49,11 @@ const bundlePath = join(dataDir, 'bundle.mjs');
 writeFileSync(bundlePath, src);
 
 if (isWin) {
-  writeFileSync(join(binDir, 'link-rules-git.cmd'), `@node "${bundlePath}" %*\r\n`);
+  writeFileSync(join(binDir, 'claude-rules.cmd'), `@node "${bundlePath}" %*\r\n`);
 } else {
-  const launcher = join(binDir, 'link-rules-git');
+  const launcher = join(binDir, 'claude-rules');
   writeFileSync(launcher, `#!/bin/sh\nexec node "${bundlePath}" "$@"\n`);
   chmodSync(launcher, 0o755);
 }
-ok(`설치 완료: ${join(binDir, 'link-rules-git')}`);
-info('PATH 에 ~/.local/bin 이 없으면 추가하세요.  사용: link-rules-git init');
+ok(`설치 완료: ${join(binDir, 'claude-rules')}`);
+info('PATH 에 ~/.local/bin 이 없으면 추가하세요.  사용: claude-rules <module> init');
