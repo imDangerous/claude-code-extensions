@@ -17,9 +17,61 @@ ccx list                     # 사용 가능한 카테고리/모듈
 ```bash
 curl -fsSL https://github.com/imDangerous/claude-code-extensions/releases/latest/download/install.mjs | node
 # 버전 핀:
-curl -fsSL https://github.com/imDangerous/claude-code-extensions/releases/download/v1.0.1/install.mjs | node
+curl -fsSL https://github.com/imDangerous/claude-code-extensions/releases/download/v1.0.2/install.mjs | node
 ```
 `~/.local/bin/ccx` 런처가 깔린다(PATH에 `~/.local/bin` 필요). npm/토큰 불필요.
+
+## 사용법 — 목표 모델 (레이어드 팩)
+
+> ⚠️ **목표 모델.** 현재 릴리스(v1.0.x)는 아래 [명령](#명령)의 `ccx rules git …`까지 동작한다.
+> `ccx web/app init`(아래)은 packs 재구성 + `requires` 자동 동반 엔진을 구현하면 동작한다(설계 확정).
+
+스택의 **framework pack 하나만 init**하면, `requires` 체인으로 **core·언어(js) 팩이 자동 동반**된다.
+
+| 프로젝트 | 한 줄 명령 | 자동 동반(requires) |
+|---|---|---|
+| 웹 | `ccx web init` | **core + js + web** |
+| RN(앱) | `ccx app init` | **core + js + app** (Expo SDK 56) |
+| (미래) Spring | `ccx spring init` | core + jvm + spring |
+
+### 웹 프로젝트 예시
+```console
+$ cd my-web-app
+$ ccx web init
+[i] 의존성 해소: web → js → core   (frontend)
+? 패키지 매니저              pnpm        # 합집합·중복제거 → 한 번만
+? 티켓 prefix (없으면 Enter)  ABC
+? Tailwind 버전             v3 (기본)    # web variant (레거시 호환), v4 옵트인
+[✓] core → .claude/rules · skills(orchestrate·plan·ideate) · agents(qa-reviewer·app-inspector…)
+[✓] js   → biome · vitest · typescript · react
+[✓] web  → nextjs · tailwind(v3) · design-system · ui
+[✓] .claude/extends/config.json  (공유 값 1개) · commitlint · .husky/* · CI
+$ ccx apply                          # 설치된 룰을 CLAUDE.md 관리 블록에 @import 주입
+```
+
+### RN(앱) 프로젝트 예시
+```console
+$ cd my-rn-app
+$ ccx app init
+[i] 의존성 해소: app → js → core   (frontend · Expo SDK 56)
+? 패키지 매니저              pnpm
+? 티켓 prefix               ABC
+[✓] core → (웹과 동일한 표준 에이전트·스킬·git)
+[✓] js   → biome · vitest · typescript · react
+[✓] app  → expo(SDK 56) · rn · nativewind · fsd · create-screen
+$ ccx apply
+```
+웹과 **다른 부분만**: `nextjs·tailwind` → `expo·rn·nativewind·fsd`. **core·js는 동일**.
+
+### 옵션
+```bash
+ccx web init --yes              # 질문 0 (전부 기본값, tailwind v3)
+ccx web init --tailwind v4      # variant 지정
+ccx app init --yes              # RN 기본값(Expo SDK 56)
+```
+
+- **설치만으론 자동 로드 아님** — 룰은 `ccx apply`가 `CLAUDE.md` 관리 블록에 `@import`로 넣어야 읽힌다.
+  스킬·서브에이전트는 `.claude/skills`·`.claude/agents`에 놓이는 즉시 Claude Code가 자동 인식(apply 불필요).
 
 ## 명령
 

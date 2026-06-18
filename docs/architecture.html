@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ccx — AI 표준 아키텍처</title>
+<style>
+  :root{
+    --bg:#0f1117; --panel:#171a23; --panel2:#1d2130; --line:#2a2f40;
+    --tx:#e6e9f0; --mut:#9aa3b8; --dim:#6b7488;
+    --core:#7c84ff; --web:#3fb6a8; --app:#e8a33d; --spring:#d56a6a;
+    --mng:#7c84ff; --own:#5b6478; --ok:#46c98b; --code:#11141c;
+    --r:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--tx);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;
+    padding:40px 22px 80px}
+  .wrap{max-width:1080px;margin:0 auto}
+  h1{font-size:30px;margin:0 0 6px;letter-spacing:-.5px}
+  h1 .tag{font-size:13px;color:var(--mut);font-weight:500;margin-left:10px}
+  .sub{color:var(--mut);margin:0 0 8px}
+  .goal{background:linear-gradient(90deg,#1b1f33,#171a23);border:1px solid var(--line);
+    border-left:3px solid var(--core);border-radius:10px;padding:14px 18px;margin:18px 0 34px;color:#cfd5e6}
+  .goal b{color:var(--core)}
+  section{margin:38px 0}
+  h2{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);
+    margin:0 0 16px;font-weight:700}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px}
+  /* layered diagram */
+  .stack{display:flex;flex-direction:column;gap:14px}
+  .layer{border-radius:var(--r);padding:16px 18px;border:1px solid var(--line);background:var(--panel)}
+  .layer .lh{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .layer .lh b{font-size:15px}
+  .layer .lh .badge{font-size:11px;padding:2px 8px;border-radius:20px;color:#0f1117;font-weight:700}
+  .layer .desc{color:var(--mut);font-size:13px;margin-left:auto;font-weight:500}
+  .mods{display:flex;flex-wrap:wrap;gap:7px}
+  .mod{font-size:12.5px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:7px;padding:4px 9px;color:#c7cde0;font-family:ui-monospace,Menlo,monospace}
+  .engine{background:linear-gradient(90deg,#222644,#1a1d2b);border-color:#3a4170}
+  .engine .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .engine .cmd{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;background:#0f1220;
+    border:1px solid #3a4170;border-radius:7px;padding:4px 10px;color:#c9cffc}
+  .arrowdown{text-align:center;color:var(--dim);font-size:20px;line-height:1;margin:-4px 0}
+  .l-core{border-left:3px solid var(--core)}
+  .l-packs{border-left:3px solid var(--web)}
+  .packgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:6px}
+  .pack{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 13px}
+  .pack .pt{font-weight:700;font-size:13px;margin-bottom:8px;display:flex;gap:7px;align-items:center}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .req{font-size:10.5px;color:var(--dim);font-weight:600;margin-left:5px}
+  .con{font-size:10px;padding:1px 7px;border-radius:20px;font-weight:700;margin-left:auto}
+  .con.fe{background:rgba(63,182,168,.16);color:#7fd9cd;border:1px solid #2f5a54}
+  .con.be{background:rgba(213,106,106,.16);color:#e89a9a;border:1px solid #5a3030}
+  /* two col */
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .col h3{margin:0 0 10px;font-size:14px}
+  .col.mng{border-top:3px solid var(--mng)}
+  .col.own{border-top:3px solid var(--own)}
+  ul{margin:0;padding-left:18px}li{margin:4px 0;color:#cdd3e3;font-size:13.5px}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;background:#0f1220;border:1px solid var(--line);
+    border-radius:5px;padding:1px 6px;color:#cdd3ee}
+  pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:14px 16px;overflow:auto;
+    font-family:ui-monospace,Menlo,monospace;font-size:12.5px;line-height:1.65;color:#cdd3ee;margin:0}
+  .cm{color:var(--dim)}.k{color:#7c84ff}.s{color:#46c98b}.mng2{color:#9aa3ff}
+  .fsmap .row{display:flex;gap:10px;align-items:baseline;padding:3px 0;border-bottom:1px dashed #232838}
+  .fsmap .row:last-child{border:0}
+  .fsmap .p{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:#cdd3ee;min-width:300px}
+  .fsmap .t{font-size:12px}
+  .pill{font-size:10.5px;padding:1px 7px;border-radius:20px;font-weight:700}
+  .pill.m{background:rgba(124,132,255,.16);color:#aab0ff;border:1px solid #3a4170}
+  .pill.o{background:rgba(91,100,120,.18);color:#aeb6c8;border:1px solid #39414f}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;color:var(--mut);font-size:12.5px;margin-top:12px}
+  .legend span{display:flex;gap:7px;align-items:center}
+  .neutral{margin-top:10px;color:var(--dim);font-size:12px}
+  @media(max-width:760px){.packgrid,.cols{grid-template-columns:1fr}.fsmap .p{min-width:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>ccx <span class="tag">claude-code-extensions · AI 표준</span></h1>
+  <p class="sub">Claude Code 프로젝트에 <b>공통 AI 표준</b>을 깔고, <b>특화 pack</b>으로 보강하는 설치/관리 CLI.</p>
+  <div class="goal">
+    🎯 <b>목표</b> — “모든 프로젝트에 동일하게 적용되는 <b>AI 표준 모델</b>”을 만든다.
+    <code>core</code>가 표준 베이스이고, <code>web/app/spring</code> 같은 특화 pack이 그 위에 보강된다.
+    값·도메인은 프로젝트가, 표준 구조는 ccx가 관리한다.
+  </div>
+
+  <!-- ARCHITECTURE -->
+  <section>
+    <h2>1 · 아키텍처 (engine → core → language → framework)</h2>
+    <div class="stack">
+
+      <div class="layer engine">
+        <div class="lh"><b>ccx engine</b><span class="desc">설치·갱신·점검·주입 (스택 불가지)</span></div>
+        <div class="row">
+          <span class="cmd">ccx &lt;pack&gt; init</span>
+          <span class="cmd">update</span><span class="cmd">doctor</span><span class="cmd">remove</span>
+          <span class="cmd" style="border-color:#5a63a8;color:#cfd4ff">apply →CLAUDE.md</span>
+          <span class="cmd">list</span>
+        </div>
+      </div>
+
+      <div class="arrowdown">▼ ccx &lt;pack&gt; init &nbsp;(의존 pack 자동 동반)</div>
+
+      <div class="layer l-core">
+        <div class="lh">
+          <span class="badge" style="background:var(--core)">CORE</span>
+          <b>표준 베이스 — 모든 프로젝트 공통</b>
+          <span class="desc">스택 무관</span>
+        </div>
+        <div class="mods">
+          <span class="mod">git</span><span class="mod">git-workflow</span><span class="mod">qa-reviewer</span>
+          <span class="mod">orchestrate</span><span class="mod">plan</span><span class="mod">ideate</span>
+          <span class="mod">app-inspector</span><span class="mod">agent-workflow</span><span class="mod">entropy</span>
+        </div>
+        <div class="neutral" style="margin-top:8px">에이전트·스킬은 전부 core에. framework의 <b>concern 태그</b>(frontend/backend)가 orchestrate가 동원할 에이전트 세트를 정함.</div>
+      </div>
+
+      <div class="arrowdown">▼ 언어 레이어</div>
+
+      <div class="layer" style="border-left:3px solid #c98ad6">
+        <div class="lh">
+          <span class="badge" style="background:#c98ad6">LANGUAGE</span>
+          <b>언어 — 린터·포매터·테스트·타입</b>
+          <span class="desc">js / jvm / python …</span>
+        </div>
+        <div class="packgrid">
+          <div class="pack">
+            <div class="pt"><span class="dot" style="background:#c98ad6"></span>js</div>
+            <div class="mods"><span class="mod">biome</span><span class="mod">vitest</span><span class="mod">typescript</span><span class="mod">react</span></div>
+          </div>
+          <div class="pack">
+            <div class="pt"><span class="dot" style="background:#c98ad6"></span>jvm</div>
+            <div class="mods"><span class="mod" style="color:#7a8197">java/kotlin (future)</span></div>
+          </div>
+          <div class="pack">
+            <div class="pt"><span class="dot" style="background:#c98ad6"></span>python</div>
+            <div class="mods"><span class="mod" style="color:#7a8197">(future)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrowdown">▼ framework → language 에 의존</div>
+
+      <div class="layer l-packs">
+        <div class="lh">
+          <span class="badge" style="background:var(--web)">FRAMEWORK</span>
+          <b>프레임워크 — 구조·의존성·라우팅·규칙</b>
+          <span class="desc">필요한 것만</span>
+        </div>
+        <div class="packgrid">
+          <div class="pack">
+            <div class="pt"><span class="dot" style="background:var(--web)"></span>web <span class="req">→ js</span><span class="con fe">frontend</span></div>
+            <div class="mods"><span class="mod">nextjs</span><span class="mod">tailwind v3*/v4</span></div>
+            <div class="neutral" style="margin-top:7px">tailwind = <b>variant</b>, 기본 <b>v3</b>(레거시), v4 옵트인</div>
+          </div>
+          <div class="pack">
+            <div class="pt"><span class="dot" style="background:var(--app)"></span>app <span class="req">→ js</span><span class="con fe">frontend</span></div>
+            <div class="mods"><span class="mod">expo SDK&nbsp;56</span><span class="mod">rn</span><span class="mod">ui</span></div>
+            <div class="neutral" style="margin-top:7px">Expo 기본 · <b>baseline SDK 56</b>(릴리스마다 bump)</div>
+          </div>
+          <div class="pack">
+            <div class="pt"><span class="dot" style="background:var(--spring)"></span>spring <span class="req">→ jvm</span><span class="con be">backend</span></div>
+            <div class="mods"><span class="mod" style="color:#7a8197">(future)</span></div>
+          </div>
+        </div>
+        <div class="neutral"><code>ccx web init</code> → <b>core + js + web 자동 동반</b>(framework가 <code>requires</code> 선언). <b>variant</b>=사용자 선택 · <b>baseline</b>=현행 최신 추적 — 둘 다 메타 재평가 루프가 bump.</div>
+      </div>
+
+    </div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--core)"></span> core 표준</span>
+      <span><span class="dot" style="background:#c98ad6"></span> language</span>
+      <span><span class="dot" style="background:var(--web)"></span> framework</span>
+      <span><span class="con fe" style="margin:0">frontend</span> / <span class="con be" style="margin:0">backend</span> = pack 아님 — framework가 선언하는 역할 → 에이전트 세트 선택</span>
+    </div>
+  </section>
+
+  <!-- INSTALL MAP -->
+  <section>
+    <h2>2 · 설치 맵 (프로젝트에 무엇이 생기나)</h2>
+    <div class="card fsmap">
+      <div class="row"><span class="p">.claude/rules/&lt;module&gt;.md</span><span class="t"><span class="pill m">ccx</span> 룰 문서</span></div>
+      <div class="row"><span class="p">.claude/skills/&lt;name&gt;/SKILL.md</span><span class="t"><span class="pill m">ccx</span> 스킬</span></div>
+      <div class="row"><span class="p">.claude/agents/&lt;name&gt;.md</span><span class="t"><span class="pill m">ccx</span> 서브에이전트</span></div>
+      <div class="row"><span class="p">.claude/extends/&lt;pack&gt;/config.json</span><span class="t"><span class="pill m">ccx</span> 팩 1개 설정(공유 값) + 헬퍼</span></div>
+      <div class="row"><span class="p">commitlint.config.cjs · .husky/* · .github/workflows/*</span><span class="t"><span class="pill m">ccx</span> 프레임워크 강제 위치(고정)</span></div>
+      <div class="row"><span class="p">CLAUDE.md (관리 블록)</span><span class="t"><span class="pill m">ccx apply</span> 설치 pack을 @import 주입</span></div>
+      <div class="row"><span class="p">CLAUDE.md (그 외) · 도메인 문서</span><span class="t"><span class="pill o">project</span> 직접 작성</span></div>
+    </div>
+    <div class="neutral"><b>설치 단위는 pack</b> — <code>ccx &lt;pack&gt; init</code>이 그 팩 모듈을 일괄 설치. 모듈은 manifest <code>targets</code>로 “어디 깔리는지” 스스로 안다. init 질문은 팩 모듈의 <b>합집합·중복 제거</b>해 한 번씩만, 결과는 팩 1개 <code>config.json</code>에 저장.</div>
+  </section>
+
+  <!-- APPLY -->
+  <section>
+    <h2>3 · <code>ccx apply</code> — CLAUDE.md에 표준 주입 (항상 읽히게)</h2>
+    <div class="cols">
+      <div class="card">
+<pre><span class="cm"># CLAUDE.md (프로젝트 루트)</span>
+<span class="mng2">&lt;!-- ccx:managed:start --&gt;</span>
+<span class="cm">## AI 표준 (ccx 관리 — 직접 수정 금지)</span>
+@.claude/rules/git.md
+@.claude/rules/qa-reviewer.md
+@.claude/rules/nextjs.md
+<span class="mng2">&lt;!-- ccx:managed:end --&gt;</span>
+
+<span class="cm"># ↓ 여기부터 프로젝트 소유 (자유 편집)</span>
+## 스택 / 도메인 / 용어
+<span class="cm">… 프로젝트가 직접 작성 …</span></pre>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">왜</h3>
+        <ul>
+          <li><b>설치 = 자동 로드 아님.</b> Claude Code는 <code>CLAUDE.md</code>와 그 <code>@import</code>를 읽는다.</li>
+          <li><code>ccx apply</code>가 설치된 pack의 룰을 <b>관리 블록</b>에 <code>@import</code>로 넣어 <b>반드시 읽히게</b> 한다.</li>
+          <li>관리 블록만 ccx 소유 → <code>update</code>가 블록만 갱신, <b>나머지 CLAUDE.md는 보존</b>.</li>
+          <li><code>doctor</code>가 “설치됐는데 미주입” 같은 드리프트를 잡는다.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- OWNERSHIP -->
+  <section>
+    <h2>4 · 표준(ccx) vs 프로젝트 소유</h2>
+    <div class="cols">
+      <div class="card col mng">
+        <h3>🔵 ccx 관리 (표준, 직접 수정 ✗)</h3>
+        <ul>
+          <li>core/특화 pack의 룰·스킬·서브에이전트</li>
+          <li>commitlint·husky 훅·CI 워크플로</li>
+          <li>CLAUDE.md <b>관리 블록</b>(@import)</li>
+          <li>갱신: <code>ccx … update</code> · 점검: <code>doctor</code></li>
+        </ul>
+      </div>
+      <div class="card col own">
+        <h3>⚪ 프로젝트 소유 (직접 작성 ✓)</h3>
+        <ul>
+          <li><b>CLAUDE.md</b> 진입점(스택 사실·설치 pack 요약)</li>
+          <li><b>config.json</b> 값(티켓 prefix·브랜치·…) <span class="cm">예: <code>{ "ticketPrefix": "ABC" }</code></span></li>
+          <li><b>도메인 문서</b> — 이 앱 고유(라우팅·플로우·용어집)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="neutral">= “구조·표준은 ccx, 값·도메인은 프로젝트.” 이게 ccx가 **공용**일 수 있는 이유.</div>
+  </section>
+
+  <!-- LIFECYCLE -->
+  <section>
+    <h2>5 · 라이프사이클</h2>
+    <div class="card">
+<pre><span class="cm"># 설치(머신당 1회, 무인증)</span>
+curl -fsSL https://github.com/&lt;owner&gt;/claude-code-extensions/releases/latest/download/install.mjs | node
+
+<span class="cm"># 팩 단위 설치 — 한 번에 표준 전체</span>
+ccx core <span class="k">init</span>              <span class="cm"># core 팩 전체(모든 모듈)</span>
+ccx web  <span class="k">init</span>              <span class="cm"># web 보강 (core + js 자동 동반)</span>
+ccx <span class="k">apply</span>                  <span class="cm"># 설치 pack을 CLAUDE.md에 주입</span>
+
+ccx core <span class="k">doctor</span>            <span class="cm"># 팩 전체 점검</span>
+ccx core <span class="k">update</span>            <span class="cm"># 팩 전체 최신화(값·관리블록 보존)</span>
+ccx core update <span class="s">--only git</span>  <span class="cm"># (선택) 특정 모듈만 — 고급</span></pre>
+    </div>
+  </section>
+
+  <p class="neutral">비공식(unofficial) · MIT · Anthropic과 무관. 모든 이름/값은 placeholder(<code>&lt;owner&gt;</code>, <code>ABC</code>, <code>core/web/app/spring</code>).</p>
+
+</div>
+</body>
+</html>
