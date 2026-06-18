@@ -5,6 +5,9 @@
   "questions": [],
   "targets": [
     { "src": "nextjs.md", "dest": ".claude/rules/nextjs.md", "kind": "doc" },
-    { "src": "web-inspector.md", "dest": ".claude/agents/web-inspector.md", "kind": "doc" }
+    { "src": "web-inspector.md", "dest": ".claude/agents/web-inspector.md", "kind": "doc" },
+    { "src": "web-idea-researcher.md", "dest": ".claude/agents/web-idea-researcher.md", "kind": "doc" },
+    { "src": "web-product-planner.md", "dest": ".claude/agents/web-product-planner.md", "kind": "doc" },
+    { "src": "web-spec-planner.md", "dest": ".claude/agents/web-spec-planner.md", "kind": "doc" }
   ]
 }

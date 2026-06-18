@@ -3,7 +3,7 @@
 
 > Expo(managed) + React Native 앱의 AI 작업 표준. 버전 핀은 프로젝트 `package.json`이 SoT —
 > 룰은 가급적 SDK 무관한 **불변 규약**을 정의한다. 네이티브 의존성은 `npx expo install`로 호환 버전을 맞춘다(임의 `npm install` 금지).
-> baseline(검증, 2026-05): **SDK 56 = RN 0.85 / React 19.2**. New Architecture 기본(SDK 54부터 기본, **SDK 55에서 Legacy 제거** — New-Arch 호환 라이브러리만), **Hermes v1 기본**(SDK 56). UI/로직 분리는 `architecture.md` 따름.
+> baseline(공식 changelog 기준, 2026-05 — **프로젝트 설치 버전이 최종 SoT, 신규 API는 현행 문서로 확인**): SDK 56 ≈ RN 0.85 / React 19.2. New Architecture 기본(SDK 54~), SDK 55에서 Legacy 제거(New-Arch 호환 라이브러리만), Hermes v1 기본(SDK 56). UI/로직 분리는 `architecture.md` 따름.
 
 ## 스택 (표준)
 - **Framework**: React Native + Expo (SDK 56, managed, New Architecture)

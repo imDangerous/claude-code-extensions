@@ -9,6 +9,9 @@
     { "src": "idea-researcher.md", "dest": ".claude/agents/idea-researcher.md", "kind": "doc" },
     { "src": "product-planner.md", "dest": ".claude/agents/product-planner.md", "kind": "doc" },
     { "src": "spec-planner.md", "dest": ".claude/agents/spec-planner.md", "kind": "doc" },
-    { "src": "design-architect.md", "dest": ".claude/agents/design-architect.md", "kind": "doc" }
+    { "src": "design-architect.md", "dest": ".claude/agents/design-architect.md", "kind": "doc" },
+    { "src": "feature-builder.md", "dest": ".claude/agents/feature-builder.md", "kind": "doc" },
+    { "src": "ui-developer.md", "dest": ".claude/agents/ui-developer.md", "kind": "doc" },
+    { "src": "api-integrator.md", "dest": ".claude/agents/api-integrator.md", "kind": "doc" }
   ]
 }

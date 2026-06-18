@@ -1,7 +1,7 @@
 <!-- Managed by ccx -->
 # Next.js App Router (16 / React 19)
 
-> App Router 전용. Pages Router·SSR API 금지. baseline: Next.js 16(Turbopack 기본·React 19.2). UI/로직 분리는 `architecture.md` 따름.
+> App Router 전용. Pages Router·SSR API 금지. baseline: Next.js 16(Turbopack 기본·React 19.2) — **신규 캐싱/API 시그니처(`'use cache'`·`revalidateTag` 인자·`proxy.ts` 등)는 설치된 버전의 공식 문서로 확인**. UI/로직 분리는 `architecture.md` 따름.
 
 ## DO
 1. **Server Component 기본** — `'use client'`는 상태/이벤트/브라우저 API가 필요한 **최하위 leaf**에만. `'use client'`는 경계 — 그 모듈이 import하는 전부가 클라 번들에 포함되니 디렉티브를 트리 아래로 민다.
