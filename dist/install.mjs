@@ -57,4 +57,4 @@ if (isWin) {
   chmodSync(launcher, 0o755);
 }
 ok(`설치 완료: ${join(binDir, isWin ? 'ccx.cmd' : 'ccx')}`);
-info(`PATH 에 ${binDir} 가 없으면 추가하세요.  사용: ccx <category> <module> init`);
+info(`PATH 에 ${binDir} 가 없으면 추가하세요.  사용: ccx <pack> init  (예: ccx web init / ccx app init)`);
