@@ -259,7 +259,7 @@ function cmdApply(root) {
     const s = L.indexOf(CM_START), e = L.indexOf(CM_END);
     L.splice(s, e - s + 1, block);
     content = L.join('\n');
-  } else content = `${block}\n\n${content.replace(/^/, '')}`;
+  } else content = `${block}\n\n${content}`;
   write(cp, content);
   c.ok(`CLAUDE.md 갱신 — 룰 ${docs.length}개 @import 주입`);
   return 0;
@@ -268,13 +268,14 @@ function cmdApply(root) {
 function cmdGeneric(root, packName, cmd, args) {
   const packs = resolvePacks(packName);
   const only = args.flags.only ? String(args.flags.only).split(',') : null;
-  const list = eachModule([packName], only, packName); // 대상 pack 모듈만 (deps 제외)
+  const fullList = eachModule(packs, only, packName); // check/doctor: 의존(core/js) 포함 — 건강 오판 방지
+  const targetList = eachModule([packName], only, packName); // update/remove: 대상 pack만
   const cfg = readConfig(root) || Object.fromEntries(unionQuestions(packs).map((q) => [q.key, q.default]));
   const pm = resolvePM(cfg, root);
-  if (cmd === 'check') return checkSet(root, list, cfg, pm, false);
+  if (cmd === 'check') return checkSet(root, fullList, cfg, pm, false);
   if (cmd === 'doctor') {
     let issues = 0;
-    for (const { m, id } of list) for (const t of activeTargets(m.manifest, cfg)) {
+    for (const { m, id } of fullList) for (const t of activeTargets(m.manifest, cfg)) {
       const st = classify(root, t, render(t, m.files, cfg, pm, id), id);
       if (st === 'IDENTICAL' || st === 'KEEP') c.ok(t.dest);
       else { c.warn(`${t.dest} — ${st === 'CREATE' ? '없음' : st}`); issues++; }
@@ -283,7 +284,7 @@ function cmdGeneric(root, packName, cmd, args) {
     return issues ? 1 : 0;
   }
   if (cmd === 'update') {
-    for (const { m, id, pk } of list) for (const t of activeTargets(m.manifest, cfg)) {
+    for (const { m, id, pk } of targetList) for (const t of activeTargets(m.manifest, cfg)) {
       const r = render(t, m.files, cfg, pm, id), st = classify(root, t, r, id);
       if (st === 'IDENTICAL' || st === 'KEEP') continue;
       if (st === 'FOREIGN') { c.warn(`${t.dest} — 외부 내용 스킵`); continue; }
@@ -292,7 +293,7 @@ function cmdGeneric(root, packName, cmd, args) {
     c.ok('update 완료'); return 0;
   }
   if (cmd === 'remove') {
-    for (const { m, id } of list) for (const t of m.manifest.targets) {
+    for (const { m, id } of targetList) for (const t of m.manifest.targets) {
       const p = join(root, t.dest);
       if (!existsSync(p)) continue;
       if (t.kind === 'hook') {
