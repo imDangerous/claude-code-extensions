@@ -1,13 +1,16 @@
 # ccx v2 — 작업 핸드오프 (다음 세션용)
 
-> 작성 2026-06-18. 로컬 경로 `/Users/link/Workspace/claude-code-extensions`. 리모트 `imDangerous/claude-code-extensions`.
+> 작성 2026-06-18, 갱신 2026-06-19. 로컬 경로 `/Users/link/Workspace/claude-code-extensions`. 리모트 `imDangerous/claude-code-extensions`.
 > 설계 시각화: `docs/architecture.html`. 사용법: `README.md`.
 
-## 현재 상태
-- **v2.0.0 = 레이어드 packs 엔진** 구현·로컬검증 완료. **미릴리스**(레지스트리/머신 `ccx`는 아직 **v1.0.2**).
+## 현재 상태 — ✅ v2.0.1 릴리스 완료 (2026-06-19)
+- **릴리스됨**: 태그 `v2.0.0`·`v2.0.1` 게시(자산 bundle.mjs+install.mjs), `releases/latest`=**v2.0.1**. release.yml 워크플로 success. 게시 install.mjs 실설치 종단 검증(`ccx version`=2.0.1).
+- **원격 `main` HEAD = `81cf6b6`** (feature 브랜치 4커밋 FF 머지 + install 힌트 fix + v2.0.1 버전 bump). working tree 클린.
+- v2.0.1 릴리스 노트 작성·반영(패치 델타 + v2.0 전체 하이라이트). gh 계정은 link-readypost로 복구.
 - 구조: `packs/<pack>/{pack.json, <module>/{module.json, files/}}` · `src/cli.mjs`(엔진) · `build.mjs`(임베드) · `src/install.mjs`.
-- 명령: `ccx <pack> init|check|doctor|update|remove` · `ccx apply` · `ccx list`. (BREAKING: v1 `ccx <category> <module>` 폐기)
-- packs: **core**(git·agent-workflow·qa-reviewer·orchestrate) · **js**→core(biome·typescript) · **web**→js(nextjs·tailwind) · **app**→js(expo=스텁).
+- 명령: `ccx <pack> init|check|doctor|update|remove` · `ccx <pack> <module> <cmd>` · `ccx apply` · `ccx list`. (BREAKING: v1 `ccx <category> <module>` 폐기)
+- packs(**전부 실콘텐츠**): **core**(git·agent-workflow·qa-reviewer·orchestrate) · **js**→core(architecture·biome·typescript) · **web**→js(nextjs·tailwind·vitest, 에이전트 8+스킬 2) · **app**→js(expo, 에이전트 8+스킬 2). app/web 파이프라인 대칭(plan→design→build→QA).
+- 릴리스 절차(계정 전환 push 명령)는 아래 "릴리스 절차" 참고. 패치 시: package.json + README/install.mjs 핀 bump → build → 커밋 → 태그 push.
 
 ## 검증된 동작 (실측)
 - `ccx web init` → core+js+web 자동 동반(requires), 전 타입 설치, 공유 config(`.claude/extends/config.json`, 합집합·중복제거).
@@ -62,21 +65,22 @@
 - **P2 #2 모듈 주소지정 완료 (2026-06-18 9차)** — `ccx <pack> <module> <cmd>` 지원(예: `ccx core git doctor` → git 모듈만 검사). main()에서 a._[1]이 명령이 아니면 모듈명으로 보고 `--only`로 좁힘 + 미지 모듈/잘못된 cmd 에러. HELP 갱신. 검증됨.
 - **P2 #3 Yarn PnP 완료 (2026-06-18 9차)** — commit-msg 훅의 `./node_modules/.bin/commitlint` 하드코딩 제거 → 엔진 `@bin:<name>` 플레이스홀더(render에서 PM별 `binRun`으로 치환): npm=`npx --no-install commitlint`·pnpm=`pnpm exec commitlint`·**yarn=`yarn commitlint`(PnP-safe)**·bun=`bunx commitlint`. PM 4종 렌더 + npm 실설치 정상/비정상 커밋 회귀 검증(✨ 변환·commitlint 거부 모두 OK).
 
-## 릴리스 절차 (다음 세션)
-1. 결정: **v2.0.0-beta**(엔진+git 실동작, 내용 scaffold 명시) 권장 vs P0/P1 채운 뒤 v2.0.0.
-2. 버전: `package.json` + `README.md`/`src/install.mjs`의 `v2.0.0` 핀.
-3. push/release (imDangerous 권한):
+## 릴리스 절차 (v2.0.0·v2.0.1 완료 — 다음 패치 시 재사용)
+1. 버전 bump: `package.json` + `README.md`/`src/install.mjs`의 다운로드 핀 → `node build.mjs`(dist/install.mjs·bundle.mjs 갱신) → 커밋.
+2. 태그 + push (imDangerous 권한 필요):
    ```
+   git tag -a vX.Y.Z -m "..."
    gh auth switch --user imDangerous
    git -c credential.helper= -c 'credential.helper=!gh auth git-credential' push origin main vX.Y.Z
    gh auth switch --user link-readypost
    ```
-   태그 push → `.github/workflows/release.yml`이 dist 첨부 릴리스 생성.
-4. 검증: `curl …/releases/latest/download/install.mjs | node` → `ccx version`.
+   태그 push → `.github/workflows/release.yml`이 dist 첨부 릴리스 자동 생성.
+3. 릴리스 노트: `gh release edit vX.Y.Z --notes-file <md>` (imDangerous 계정으로). 검증: `curl …/releases/latest/download/install.mjs | node` → `ccx version`.
+   - 참고: release.yml의 actions가 Node 20 타깃이라 deprecation 경고 출력(비차단). 차후 actions 버전업 시 해소.
 
 ## 다음 세션 먼저 볼 파일
 `src/cli.mjs`(엔진) · `build.mjs` · `packs/core/git/`(완전 모듈 참조) · `docs/architecture.html` · 이 문서.
 
 ## 테스트 메모
 - 임시 검증 시 commitlint/config-conventional은 ov-fe-edocument node_modules 재사용: `NODE_PATH=/Users/link/Workspace/RP/ov/apps/ov-fe-edocument/node_modules`.
-- 실행: `node dist/bundle.mjs web init --yes --no-install --ticket RP --dir <temp>` (머신 `ccx`는 v1.0.2라 dist 직접 실행).
+- 실행: `node dist/bundle.mjs web init --yes --no-install --ticket RP --dir <temp>`. 머신 `ccx`는 이제 **v2.0.1**(`~/.local/bin/ccx`)이나, 미커밋 로컬 변경 검증 시엔 `dist/bundle.mjs` 직접 실행 권장.
