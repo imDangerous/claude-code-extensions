@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 # >>> ccx:__CCX_ID__ (managed: do not edit between markers) >>>
-node .claude/extends/rules/git/gitmoji-commit.cjs "$1" "$2"
+node .claude/extends/core/git/gitmoji-commit.cjs "$1" "$2"
 # <<< ccx <<<

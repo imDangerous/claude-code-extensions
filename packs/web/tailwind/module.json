@@ -1,0 +1,11 @@
+{
+  "name": "tailwind",
+  "deps": [],
+  "husky": false,
+  "questions": [
+    { "key": "tailwind", "type": "string", "default": "v3", "prompt": "Tailwind 버전 (v3/v4)", "flag": "tailwind" }
+  ],
+  "targets": [
+    { "src": "tailwind.md", "dest": ".claude/rules/tailwind.md", "kind": "doc" }
+  ]
+}

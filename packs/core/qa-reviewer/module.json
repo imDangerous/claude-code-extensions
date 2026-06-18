@@ -1,0 +1,9 @@
+{
+  "name": "qa-reviewer",
+  "deps": [],
+  "husky": false,
+  "questions": [],
+  "targets": [
+    { "src": "qa-reviewer.md", "dest": ".claude/agents/qa-reviewer.md", "kind": "doc" }
+  ]
+}

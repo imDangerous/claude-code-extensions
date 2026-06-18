@@ -1,0 +1,9 @@
+{
+  "name": "expo",
+  "deps": [],
+  "husky": false,
+  "questions": [],
+  "targets": [
+    { "src": "expo.md", "dest": ".claude/rules/expo.md", "kind": "doc" }
+  ]
+}

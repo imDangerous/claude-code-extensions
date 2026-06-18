@@ -1,0 +1,9 @@
+{
+  "name": "typescript",
+  "deps": [],
+  "husky": false,
+  "questions": [],
+  "targets": [
+    { "src": "typescript.md", "dest": ".claude/rules/typescript.md", "kind": "doc" }
+  ]
+}

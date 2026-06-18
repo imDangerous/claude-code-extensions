@@ -1,0 +1,6 @@
+{
+  "name": "app",
+  "description": "RN 프레임워크 — Expo (baseline SDK 56)",
+  "requires": ["js"],
+  "concern": "frontend"
+}

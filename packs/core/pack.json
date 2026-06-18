@@ -1,0 +1,6 @@
+{
+  "name": "core",
+  "description": "표준 베이스 — git·에이전트·QA·작업흐름 (전 스택 공통)",
+  "requires": [],
+  "concern": null
+}

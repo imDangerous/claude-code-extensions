@@ -1,0 +1,9 @@
+{
+  "name": "agent-workflow",
+  "deps": [],
+  "husky": false,
+  "questions": [],
+  "targets": [
+    { "src": "agent-workflow.md", "dest": ".claude/rules/agent-workflow.md", "kind": "doc" }
+  ]
+}

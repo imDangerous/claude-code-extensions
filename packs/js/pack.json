@@ -1,0 +1,6 @@
+{
+  "name": "js",
+  "description": "JS/TS 공통 — 린터·포매터·타입 (web/app 의 언어 베이스)",
+  "requires": ["core"],
+  "concern": null
+}

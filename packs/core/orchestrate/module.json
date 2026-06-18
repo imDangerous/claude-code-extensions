@@ -1,0 +1,9 @@
+{
+  "name": "orchestrate",
+  "deps": [],
+  "husky": false,
+  "questions": [],
+  "targets": [
+    { "src": "SKILL.md", "dest": ".claude/skills/orchestrate/SKILL.md", "kind": "doc" }
+  ]
+}

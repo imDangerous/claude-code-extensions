@@ -1,0 +1,9 @@
+{
+  "name": "biome",
+  "deps": ["@biomejs/biome"],
+  "husky": false,
+  "questions": [],
+  "targets": [
+    { "src": "biome.md", "dest": ".claude/rules/biome.md", "kind": "doc" }
+  ]
+}

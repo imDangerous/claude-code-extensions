@@ -1,8 +1,8 @@
-// Managed by ccx. Do not edit — change .claude/extends/rules/git/config.json instead.
+// Managed by ccx. Do not edit — change .claude/extends/config.json instead.
 //
 // 표준 Conventional Commits 룰(config-conventional)을 상속하고,
 // 헤더 형식만 `[PREFIX-n] gitmoji 제목`으로 재정의한다.
-const { EMOJIS, TICKET_PREFIX, TICKET_REQUIRED } = require('./.claude/extends/rules/git/gitmoji-map.cjs');
+const { EMOJIS, TICKET_PREFIX, TICKET_REQUIRED } = require('./.claude/extends/core/git/gitmoji-map.cjs');
 
 const alt = EMOJIS.map((e) => e.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
 

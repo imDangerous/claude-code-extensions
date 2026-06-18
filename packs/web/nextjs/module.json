@@ -1,0 +1,9 @@
+{
+  "name": "nextjs",
+  "deps": [],
+  "husky": false,
+  "questions": [],
+  "targets": [
+    { "src": "nextjs.md", "dest": ".claude/rules/nextjs.md", "kind": "doc" }
+  ]
+}

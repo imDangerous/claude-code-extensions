@@ -1,0 +1,6 @@
+{
+  "name": "web",
+  "description": "웹 프레임워크 — Next.js · Tailwind(v3 기본/v4 variant)",
+  "requires": ["js"],
+  "concern": "frontend"
+}

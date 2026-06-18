@@ -1,15 +1,14 @@
 # claude-code-extensions (`ccx`)
 
-> Claude Code 자산(**rules · skills · commands · subagents**)을 카테고리/모듈로 설치·관리하는 CLI.
-> 복붙 대신 설치하고, `.claude/extends/<category>/<module>/config.json` 한 곳만 프로젝트별로 바꾼다.
+> Claude Code 프로젝트에 **AI 표준**을 깔고 특화 pack으로 보강하는 CLI.
+> `core`(표준 베이스) → `js`(언어) → `web`/`app`(프레임워크) 레이어. **pack 단위 설치**, 의존 pack 자동 동반.
 > MIT · **비공식**(Anthropic과 무관).
 
-```
-ccx rules git init           # git 커밋/PR 표준(Conventional Commits + gitmoji + 티켓)
-ccx skills pr-review init     # (미래) 스킬 설치
-ccx commands ship init       # (미래) 슬래시 커맨드
-ccx subagents explorer init  # (미래) 서브에이전트
-ccx list                     # 사용 가능한 카테고리/모듈
+```bash
+ccx web init     # 웹: core + js + web 자동 동반
+ccx app init     # RN: core + js + app (Expo SDK 56)
+ccx apply        # 설치된 룰을 CLAUDE.md 관리 블록에 @import
+ccx list         # 팩/모듈 목록
 ```
 
 ## 설치 (머신당 1회, 무인증)
@@ -17,98 +16,68 @@ ccx list                     # 사용 가능한 카테고리/모듈
 ```bash
 curl -fsSL https://github.com/imDangerous/claude-code-extensions/releases/latest/download/install.mjs | node
 # 버전 핀:
-curl -fsSL https://github.com/imDangerous/claude-code-extensions/releases/download/v1.0.2/install.mjs | node
+curl -fsSL https://github.com/imDangerous/claude-code-extensions/releases/download/v2.0.0/install.mjs | node
 ```
-`~/.local/bin/ccx` 런처가 깔린다(PATH에 `~/.local/bin` 필요). npm/토큰 불필요.
+`~/.local/bin/ccx` 런처. npm/토큰 불필요.
 
-## 사용법 — 목표 모델 (레이어드 팩)
+## 사용법
 
-> ⚠️ **목표 모델.** 현재 릴리스(v1.0.x)는 아래 [명령](#명령)의 `ccx rules git …`까지 동작한다.
-> `ccx web/app init`(아래)은 packs 재구성 + `requires` 자동 동반 엔진을 구현하면 동작한다(설계 확정).
+스택의 **framework pack 하나만 init**하면 `requires` 체인으로 core·js가 **자동 동반**된다.
 
-스택의 **framework pack 하나만 init**하면, `requires` 체인으로 **core·언어(js) 팩이 자동 동반**된다.
-
-| 프로젝트 | 한 줄 명령 | 자동 동반(requires) |
+| 프로젝트 | 명령 | 자동 동반 |
 |---|---|---|
-| 웹 | `ccx web init` | **core + js + web** |
-| RN(앱) | `ccx app init` | **core + js + app** (Expo SDK 56) |
+| 웹 | `ccx web init` | core + js + web |
+| RN | `ccx app init` | core + js + app (Expo SDK 56) |
 | (미래) Spring | `ccx spring init` | core + jvm + spring |
 
-### 웹 프로젝트 예시
 ```console
-$ cd my-web-app
 $ ccx web init
-[i] 의존성 해소: web → js → core   (frontend)
-? 패키지 매니저              pnpm        # 합집합·중복제거 → 한 번만
-? 티켓 prefix (없으면 Enter)  ABC
-? Tailwind 버전             v3 (기본)    # web variant (레거시 호환), v4 옵트인
-[✓] core → .claude/rules · skills(orchestrate·plan·ideate) · agents(qa-reviewer·app-inspector…)
-[✓] js   → biome · vitest · typescript · react
-[✓] web  → nextjs · tailwind(v3) · design-system · ui
-[✓] .claude/extends/config.json  (공유 값 1개) · commitlint · .husky/* · CI
-$ ccx apply                          # 설치된 룰을 CLAUDE.md 관리 블록에 @import 주입
-```
-
-### RN(앱) 프로젝트 예시
-```console
-$ cd my-rn-app
-$ ccx app init
-[i] 의존성 해소: app → js → core   (frontend · Expo SDK 56)
-? 패키지 매니저              pnpm
-? 티켓 prefix               ABC
-[✓] core → (웹과 동일한 표준 에이전트·스킬·git)
-[✓] js   → biome · vitest · typescript · react
-[✓] app  → expo(SDK 56) · rn · nativewind · fsd · create-screen
+[i] 의존성 해소: core → js → web
+? 패키지 매니저 pnpm   ? 티켓 prefix ABC   ? Tailwind 버전 v3   # 합집합·중복제거 → 1회
+[✓] core → rules · skills(orchestrate) · agents(qa-reviewer) · git(commitlint·husky·CI)
+[✓] js   → biome · typescript
+[✓] web  → nextjs · tailwind(v3)
+[✓] .claude/extends/config.json (공유 값 1개)
 $ ccx apply
-```
-웹과 **다른 부분만**: `nextjs·tailwind` → `expo·rn·nativewind·fsd`. **core·js는 동일**.
-
-### 옵션
-```bash
-ccx web init --yes              # 질문 0 (전부 기본값, tailwind v3)
-ccx web init --tailwind v4      # variant 지정
-ccx app init --yes              # RN 기본값(Expo SDK 56)
+[✓] CLAUDE.md 관리 블록에 룰 @import
 ```
 
-- **설치만으론 자동 로드 아님** — 룰은 `ccx apply`가 `CLAUDE.md` 관리 블록에 `@import`로 넣어야 읽힌다.
-  스킬·서브에이전트는 `.claude/skills`·`.claude/agents`에 놓이는 즉시 Claude Code가 자동 인식(apply 불필요).
+옵션: `--yes`(질문0) · `--tailwind v4`(variant) · `--only m1,m2` · `--no-install` · `--dir <path>`
 
 ## 명령
 
 ```bash
-ccx <category> <module> init     # 설치 (대화형)
-ccx <category> <module> check    # 설치 전 충돌 점검 (exit 0/1/2)
-ccx <category> <module> doctor   # 설치 상태·드리프트 점검
-ccx <category> <module> update   # 최신화 (config.json 보존)
-ccx <category> <module> remove   # 제거
+ccx <pack> init                  # 팩 설치 (requires 자동 동반)
+ccx <pack> check|doctor|update|remove   # 대상 팩 모듈
+ccx apply                        # 룰 → CLAUDE.md @import
+ccx list
 ```
 
 ## 설치 위치
 
-- **설정 + 헬퍼**: `.claude/extends/<category>/<module>/` (예: `.claude/extends/rules/git/{config.json, gitmoji-*.cjs}`)
-- **프레임워크 강제 위치**(옮길 수 없음): `commitlint.config.cjs`(루트) · `.husky/*` · `.github/workflows/*`
-- **Claude Code 자산 위치**: rules→`.claude/rules/`, skills→`.claude/skills/<n>/SKILL.md`, commands→`.claude/commands/<n>.md`, subagents→`.claude/agents/<n>.md`
+- **공유 설정**: `.claude/extends/config.json` (전 팩 합집합·중복제거 1개) + 모듈 헬퍼 `.claude/extends/<pack>/<module>/`
+- **프레임워크 강제(고정)**: `commitlint.config.cjs`(루트) · `.husky/*` · `.github/workflows/*`
+- **Claude 자산**: 룰→`.claude/rules/`, 스킬→`.claude/skills/<n>/SKILL.md`, 서브에이전트→`.claude/agents/<n>.md`
+- **활성화**: 스킬·서브에이전트는 즉시 자동 인식 / **룰은 `ccx apply`** 가 CLAUDE.md에 `@import` 주입해야 로드됨.
 
-> `.claude/extends/`는 커밋 대상(팀 공유). `.claude/`를 통째로 gitignore하면 `init`/`doctor`가 경고한다.
-
-## git 모듈 동작
-
-입력 `feat: 로그인` → 훅이 `[RP-12] ✨ 로그인`(ticketPrefix=RP, 브랜치 …/RP-12-…) / `✨ 로그인`(prefix 없음)으로 변환. commitlint이 최종 형식 검증, PR 제목은 CI가 같은 규칙으로 강제.
+> `.claude/extends/`는 커밋 대상. `.claude/` 통째 gitignore면 `init`이 경고.
 
 ## 설계 원칙
 
-- **제너릭 엔진 + 선언적 모듈** — 엔진은 모듈을 모르고, 각 모듈이 `module.json`(deps·husky·questions·targets)으로 자신을 기술.
-- **표준 파일 전 프로젝트 바이트-동일** — 값은 `config.json`에서 런타임에 읽음 → `doctor`가 드리프트 검출.
-- **husky 통합**(경쟁 hooksPath 안 만듦), **훅은 관리 블록만 소유**(사용자 내용 보존), **CI 백스톱**.
+- **레이어드 pack** — core(표준) → 언어(js/jvm) → 프레임워크(web/app/spring). `requires`로 의존 자동 동반.
+- **concern 태그**(frontend/backend) — framework가 선언, orchestrate가 동원 에이전트 세트를 정함.
+- **variant vs baseline** — variant(사용자 선택, tailwind v3↔v4) / baseline(현행 최신, Expo SDK 56) — 릴리스마다 bump.
+- **표준 파일 전 프로젝트 동일** — 값은 `config.json`, `doctor`가 드리프트 검출. 훅은 관리 블록만 소유.
+- **자기개선 루프** — (A) 프로젝트: orchestrate+qa-reviewer(Hard Threshold)·iterate · (B) 표준: doctor(게이트)+update(전파)+version(재평가).
 
-## 새 모듈 추가
+## 새 pack / 모듈
 
 ```
-categories/<category>/<module>/
-├── module.json    # { name, deps, husky, questions[], targets[] }
-└── files/…        # 설치될 파일 (Managed by ccx 헤더)
+packs/<pack>/pack.json          # { name, description, requires:[], concern }
+packs/<pack>/<module>/module.json   # { name, deps, husky, questions[], targets[] }
+packs/<pack>/<module>/files/…   # 설치 파일 (Managed by ccx)
 ```
-`node build.mjs` → `dist/bundle.mjs`에 자동 임베드. 엔진 변경 불필요.
+`node build.mjs` → `dist/bundle.mjs` 자동 임베드. 엔진 변경 불필요.
 
 ## 라이선스
 
