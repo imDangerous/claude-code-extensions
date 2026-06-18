@@ -8,6 +8,11 @@
     { "src": "web-inspector.md", "dest": ".claude/agents/web-inspector.md", "kind": "doc" },
     { "src": "web-idea-researcher.md", "dest": ".claude/agents/web-idea-researcher.md", "kind": "doc" },
     { "src": "web-product-planner.md", "dest": ".claude/agents/web-product-planner.md", "kind": "doc" },
-    { "src": "web-spec-planner.md", "dest": ".claude/agents/web-spec-planner.md", "kind": "doc" }
+    { "src": "web-spec-planner.md", "dest": ".claude/agents/web-spec-planner.md", "kind": "doc" },
+    { "src": "web-feature-builder.md", "dest": ".claude/agents/web-feature-builder.md", "kind": "doc" },
+    { "src": "web-api-integrator.md", "dest": ".claude/agents/web-api-integrator.md", "kind": "doc" },
+    { "src": "web-ui-developer.md", "dest": ".claude/agents/web-ui-developer.md", "kind": "doc" },
+    { "src": "skills/web-ideate/SKILL.md", "dest": ".claude/skills/web-ideate/SKILL.md", "kind": "doc" },
+    { "src": "skills/plan-web/SKILL.md", "dest": ".claude/skills/plan-web/SKILL.md", "kind": "doc" }
   ]
 }

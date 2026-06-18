@@ -50,7 +50,13 @@
     - **이상 없음 확인**: 에이전트 name/dest 충돌 0(web- 접두), 엔진(equals/모듈주소지정/@bin/prodDeps) 회귀 0, FSD 실잔재 0(전 hit가 의도적 금지/설명문).
   - **app 스킬 2종 이관 (2026-06-19 13차)**: ideate(→idea-researcher 위임)·plan-app(→product-planner 위임) → app/expo `.claude/skills/`. plan-app Step 4 "FSD 모듈 맵" → **feature-colocation 매핑으로 de-FSD**. app init → 스킬 3종(orchestrate(core)+ideate+plan-app) 배포 검증. app 팩 완성: 룰(expo)+에이전트 8+스킬 2(+core orchestrate).
   - **orchestrate 1155줄 파이프라인 = 의도적 미이관**: core의 일반(de-RN) orchestrate(29줄) 유지 — 풀 파이프라인 이식 시 RN/FSD/_workspace 재결합 + 컨텍스트 비대로 레이어드 설계 위배. (4차 'core 일반 유지' 결정과 일관.)
-  - **남은(선택)**: web 전용 build 에이전트, web 스킬(ideate/plan-web — 단 app 스킬과 name/dest 충돌 주의), vitest 테스트 모듈. RN 원본: `~/Workspace/Link/github/react-native-fsd-agent-template/.claude/`.
+  - **선택 항목 전부 구현 — web/app 완전 대칭 (2026-06-19 14차)**:
+    - **web build 에이전트 3종**(→web/nextjs, web- 접두): web-feature-builder(feature-colocation 스캐폴드+라우트 배선)·web-api-integrator(Server Component 패칭·Server Action 검증+authn+authz·서비스·TanStack Query·캐싱)·web-ui-developer(프레젠테이션·RSC 경계·WCAG2.2·반응형·next/image). architecture.md 3계층 정렬.
+    - **web 스킬 2종**(→web/nextjs): web-ideate(→web-idea-researcher)·plan-web(→web-product-planner). app 스킬과 name/dest 비충돌(검증).
+    - **vitest 모듈 신설**(web/vitest, web 전용 — jsdom+react plugin): vitest.config.ts+tests/setup.ts(createOnly)+vitest.md 룰. deps: vitest·@vitejs/plugin-react·jsdom·@testing-library/{react,jest-dom,user-event}.
+    - 검증: web init → 9 에이전트·스킬 3(orchestrate+web-ideate+plan-web)·vitest 스캐폴드·룰 8. dest/name 충돌 0, FSD 실잔재 0. **대칭 완성**: app=8에이전트+2스킬 / web=8에이전트+2스킬+vitest.
+    - (경미) web @import 룰 218줄 — 권고 200 약간 초과, 향후 중복 제거(NativeWind/CWV/평점 반복) 대상.
+  - **#6/#7 사실상 완료.** 남은 큰 항목 없음(orchestrate 풀 파이프라인은 의도적 미이관). RN 원본: `~/Workspace/Link/github/react-native-fsd-agent-template/.claude/`.
 - **P1 #10 git-workflow 모듈 없음** — 브랜치 전략(조직 정책)은 미이관(프로젝트 고유라 보류 가능).
 - **P1 #11 ov-fe-edocument v2 재마이그레이션** — 현재 v1(`.claude/extends/rules/git/`)로 깔려 v2와 비호환. `ccx core git`(또는 `ccx web init`)로 재-init 필요.
 - **P2 #2 모듈 주소지정 완료 (2026-06-18 9차)** — `ccx <pack> <module> <cmd>` 지원(예: `ccx core git doctor` → git 모듈만 검사). main()에서 a._[1]이 명령이 아니면 모듈명으로 보고 `--only`로 좁힘 + 미지 모듈/잘못된 cmd 에러. HELP 갱신. 검증됨.

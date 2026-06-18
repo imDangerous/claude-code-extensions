@@ -1,0 +1,11 @@
+{
+  "name": "vitest",
+  "deps": ["vitest", "@vitejs/plugin-react", "jsdom", "@testing-library/react", "@testing-library/jest-dom", "@testing-library/user-event"],
+  "husky": false,
+  "questions": [],
+  "targets": [
+    { "src": "vitest.config.ts", "dest": "vitest.config.ts", "kind": "static", "createOnly": true },
+    { "src": "tests/setup.ts", "dest": "tests/setup.ts", "kind": "static", "createOnly": true },
+    { "src": "vitest.md", "dest": ".claude/rules/vitest.md", "kind": "doc" }
+  ]
+}
