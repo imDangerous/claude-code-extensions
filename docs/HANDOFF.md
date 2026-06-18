@@ -48,7 +48,9 @@
     - **수정 완료**: ① ui-developer 평점 스니펫 자기완결화(`useStoreReview`/`useReviewStore` 구조분해, `{uiIsIdle:true}`). ② tailwind.md에 tailwind 본체 설치 안내 추가(ccx는 config만 스캐폴드 — v3/v4 설치 상이). ③ expo.md/nextjs.md 버전 단정 완화("설치 버전/공식 문서로 확인" — 신규 API 시그니처 취약성 대비).
     - **수용한 트레이드오프**: architecture.md가 js 레이어(프론트 전용 룰이나 현 taxonomy상 js 소비자는 web/app 둘 다 React라 무해, 백엔드 js 팩 생기면 재배치). web install @import 룰 199줄 ≈ 권고 200줄(빠듯 — 향후 중복 제거(NativeWind/CWV/평점 반복) 여지).
     - **이상 없음 확인**: 에이전트 name/dest 충돌 0(web- 접두), 엔진(equals/모듈주소지정/@bin/prodDeps) 회귀 0, FSD 실잔재 0(전 hit가 의도적 금지/설명문).
-  - **남은 #6/#7**: ideate·plan-app 스킬, 1155줄 orchestrate 파이프라인 이관(별도 큰 작업). (선택) web 전용 build 에이전트. vitest 테스트 모듈. RN 원본: `~/Workspace/Link/github/react-native-fsd-agent-template/.claude/`.
+  - **app 스킬 2종 이관 (2026-06-19 13차)**: ideate(→idea-researcher 위임)·plan-app(→product-planner 위임) → app/expo `.claude/skills/`. plan-app Step 4 "FSD 모듈 맵" → **feature-colocation 매핑으로 de-FSD**. app init → 스킬 3종(orchestrate(core)+ideate+plan-app) 배포 검증. app 팩 완성: 룰(expo)+에이전트 8+스킬 2(+core orchestrate).
+  - **orchestrate 1155줄 파이프라인 = 의도적 미이관**: core의 일반(de-RN) orchestrate(29줄) 유지 — 풀 파이프라인 이식 시 RN/FSD/_workspace 재결합 + 컨텍스트 비대로 레이어드 설계 위배. (4차 'core 일반 유지' 결정과 일관.)
+  - **남은(선택)**: web 전용 build 에이전트, web 스킬(ideate/plan-web — 단 app 스킬과 name/dest 충돌 주의), vitest 테스트 모듈. RN 원본: `~/Workspace/Link/github/react-native-fsd-agent-template/.claude/`.
 - **P1 #10 git-workflow 모듈 없음** — 브랜치 전략(조직 정책)은 미이관(프로젝트 고유라 보류 가능).
 - **P1 #11 ov-fe-edocument v2 재마이그레이션** — 현재 v1(`.claude/extends/rules/git/`)로 깔려 v2와 비호환. `ccx core git`(또는 `ccx web init`)로 재-init 필요.
 - **P2 #2 모듈 주소지정 완료 (2026-06-18 9차)** — `ccx <pack> <module> <cmd>` 지원(예: `ccx core git doctor` → git 모듈만 검사). main()에서 a._[1]이 명령이 아니면 모듈명으로 보고 `--only`로 좁힘 + 미지 모듈/잘못된 cmd 에러. HELP 갱신. 검증됨.

@@ -12,6 +12,8 @@
     { "src": "design-architect.md", "dest": ".claude/agents/design-architect.md", "kind": "doc" },
     { "src": "feature-builder.md", "dest": ".claude/agents/feature-builder.md", "kind": "doc" },
     { "src": "ui-developer.md", "dest": ".claude/agents/ui-developer.md", "kind": "doc" },
-    { "src": "api-integrator.md", "dest": ".claude/agents/api-integrator.md", "kind": "doc" }
+    { "src": "api-integrator.md", "dest": ".claude/agents/api-integrator.md", "kind": "doc" },
+    { "src": "skills/ideate/SKILL.md", "dest": ".claude/skills/ideate/SKILL.md", "kind": "doc" },
+    { "src": "skills/plan-app/SKILL.md", "dest": ".claude/skills/plan-app/SKILL.md", "kind": "doc" }
   ]
 }
