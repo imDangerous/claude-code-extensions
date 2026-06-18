@@ -4,6 +4,11 @@
   "husky": false,
   "questions": [],
   "targets": [
-    { "src": "expo.md", "dest": ".claude/rules/expo.md", "kind": "doc" }
+    { "src": "expo.md", "dest": ".claude/rules/expo.md", "kind": "doc" },
+    { "src": "app-inspector.md", "dest": ".claude/agents/app-inspector.md", "kind": "doc" },
+    { "src": "idea-researcher.md", "dest": ".claude/agents/idea-researcher.md", "kind": "doc" },
+    { "src": "product-planner.md", "dest": ".claude/agents/product-planner.md", "kind": "doc" },
+    { "src": "spec-planner.md", "dest": ".claude/agents/spec-planner.md", "kind": "doc" },
+    { "src": "design-architect.md", "dest": ".claude/agents/design-architect.md", "kind": "doc" }
   ]
 }

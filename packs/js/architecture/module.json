@@ -1,0 +1,9 @@
+{
+  "name": "architecture",
+  "deps": [],
+  "husky": false,
+  "questions": [],
+  "targets": [
+    { "src": "architecture.md", "dest": ".claude/rules/architecture.md", "kind": "doc" }
+  ]
+}

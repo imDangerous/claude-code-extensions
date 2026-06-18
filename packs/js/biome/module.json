@@ -4,6 +4,7 @@
   "husky": false,
   "questions": [],
   "targets": [
+    { "src": "biome.json", "dest": "biome.json", "kind": "static", "createOnly": true },
     { "src": "biome.md", "dest": ".claude/rules/biome.md", "kind": "doc" }
   ]
 }

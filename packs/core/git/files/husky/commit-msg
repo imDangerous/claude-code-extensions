@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 # >>> ccx:__CCX_ID__ (managed: do not edit between markers) >>>
-./node_modules/.bin/commitlint --edit "$1"
+__COMMITLINT__ --edit "$1"
 # <<< ccx <<<

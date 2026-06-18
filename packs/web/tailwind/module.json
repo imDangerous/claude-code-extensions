@@ -1,11 +1,17 @@
 {
   "name": "tailwind",
   "deps": [],
+  "prodDeps": ["clsx", "tailwind-merge"],
   "husky": false,
   "questions": [
     { "key": "tailwind", "type": "string", "default": "v3", "prompt": "Tailwind 버전 (v3/v4)", "flag": "tailwind" }
   ],
   "targets": [
-    { "src": "tailwind.md", "dest": ".claude/rules/tailwind.md", "kind": "doc" }
+    { "src": "cn.ts", "dest": "src/lib/cn.ts", "kind": "static", "createOnly": true },
+    { "src": "tailwind.config.ts", "dest": "tailwind.config.ts", "kind": "static", "createOnly": true, "enabledIf": "tailwind", "equals": "v3" },
+    { "src": "postcss.config.js", "dest": "postcss.config.js", "kind": "static", "createOnly": true, "enabledIf": "tailwind", "equals": "v3" },
+    { "src": "tailwind-v4.css", "dest": "src/styles/tailwind.css", "kind": "static", "createOnly": true, "enabledIf": "tailwind", "equals": "v4" },
+    { "src": "tailwind.md", "dest": ".claude/rules/tailwind.md", "kind": "doc" },
+    { "src": "web-design-architect.md", "dest": ".claude/agents/web-design-architect.md", "kind": "doc" }
   ]
 }

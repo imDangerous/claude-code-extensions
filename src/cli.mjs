@@ -56,8 +56,11 @@ function detectPM(root) {
   return 'npm';
 }
 const installCmd = (pm, d) => ({ pnpm: `pnpm add -D ${d.join(' ')}`, npm: `npm install -D ${d.join(' ')}`, yarn: `yarn add -D ${d.join(' ')}`, bun: `bun add -d ${d.join(' ')}` })[pm];
+const prodInstallCmd = (pm, d) => ({ pnpm: `pnpm add ${d.join(' ')}`, npm: `npm install ${d.join(' ')}`, yarn: `yarn add ${d.join(' ')}`, bun: `bun add ${d.join(' ')}` })[pm];
 const ciInstall = (pm) => ({ pnpm: 'pnpm install --frozen-lockfile --ignore-scripts', npm: 'npm ci --ignore-scripts', yarn: 'yarn install --frozen-lockfile --ignore-scripts', bun: 'bun install --frozen-lockfile --ignore-scripts' })[pm];
 const execPrefix = (pm) => ({ pnpm: 'pnpm exec', npm: 'npm exec', yarn: 'yarn', bun: 'bunx' })[pm];
+// PM별 로컬 bin 실행 — Yarn PnP/pnpm에서 ./node_modules/.bin 경로가 깨지므로 PM 런처 경유.
+const binRun = (pm, bin) => ({ pnpm: `pnpm exec ${bin}`, npm: `npx --no-install ${bin}`, yarn: `yarn ${bin}`, bun: `bunx ${bin}` })[pm];
 
 // ── pack/config ───────────────────────────────────────────────────
 function resolvePacks(name, seen = new Set(), order = []) {
@@ -87,9 +90,9 @@ const resolvePM = (cfg, root) => (cfg.packageManager && cfg.packageManager !== '
 // ── render / classify / write (id = pack/module) ──────────────────
 function render(t, files, cfg, pm, id) {
   let s = files[t.src].replaceAll('__CCX_ID__', id);
-  if (t.placeholders) for (const [ph, v] of Object.entries(t.placeholders)) s = s.replaceAll(ph, v === '@ciInstall' ? ciInstall(pm) : v);
+  if (t.placeholders) for (const [ph, v] of Object.entries(t.placeholders)) s = s.replaceAll(ph, v === '@ciInstall' ? ciInstall(pm) : typeof v === 'string' && v.startsWith('@bin:') ? binRun(pm, v.slice(5)) : v);
   if (t.blocks) for (const b of t.blocks) {
-    if (cfg[b.enabledIf]) continue;
+    if (b.equals !== undefined ? cfg[b.enabledIf] === b.equals : cfg[b.enabledIf]) continue;
     const L = s.split('\n');
     const st = L.findIndex((l) => l.includes(`ccx: ${b.name}`));
     const en = L.findIndex((l, i) => i > st && l.trim() === MARK_END);
@@ -122,7 +125,8 @@ function classify(root, t, rendered, id) {
   if (cur.includes(SENTINEL)) return 'UPDATE';
   return 'FOREIGN';
 }
-const activeTargets = (mf, cfg) => mf.targets.filter((t) => !t.enabledIf || cfg[t.enabledIf]);
+const targetEnabled = (t, cfg) => (!t.enabledIf ? true : t.equals !== undefined ? cfg[t.enabledIf] === t.equals : !!cfg[t.enabledIf]);
+const activeTargets = (mf, cfg) => mf.targets.filter((t) => targetEnabled(t, cfg));
 function writeTarget(root, t, rendered, status, id) {
   const p = join(root, t.dest);
   if (t.kind === 'hook') {
@@ -224,10 +228,11 @@ async function cmdInit(root, packName, args) {
 
   ensurePrepare(root);
   const deps = [...new Set(list.flatMap(({ m }) => m.manifest.deps || []))];
+  const prodDeps = [...new Set(list.flatMap(({ m }) => m.manifest.prodDeps || []))];
   const needHusky = list.some(({ m }) => m.manifest.husky);
-  if (!args.flags['no-install'] && deps.length) {
-    c.info(`deps: ${installCmd(pm, deps)}`);
-    execSync(installCmd(pm, deps), { cwd: root, stdio: 'inherit' });
+  if (!args.flags['no-install'] && (deps.length || prodDeps.length)) {
+    if (prodDeps.length) { c.info(`deps: ${prodInstallCmd(pm, prodDeps)}`); execSync(prodInstallCmd(pm, prodDeps), { cwd: root, stdio: 'inherit' }); }
+    if (deps.length) { c.info(`devDeps: ${installCmd(pm, deps)}`); execSync(installCmd(pm, deps), { cwd: root, stdio: 'inherit' }); }
     if (needHusky) { c.info('husky'); execSync(`${execPrefix(pm)} husky`, { cwd: root, stdio: 'inherit' }); }
   } else if (args.flags['no-install']) c.warn('--no-install: deps/husky 생략');
 
@@ -315,6 +320,7 @@ const HELP = `ccx v${VERSION}  (claude-code-extensions)
 
   ccx <pack> init       팩 설치 (requires 자동 동반: ${Object.keys(CATALOG).join('/')})
   ccx <pack> check|doctor|update|remove   (대상 팩 모듈)
+  ccx <pack> <module> <cmd>   단일 모듈 주소지정 (예: ccx core git doctor)
   ccx apply             설치된 룰을 CLAUDE.md 관리 블록에 @import
   ccx list              팩/모듈 목록
 
@@ -339,7 +345,15 @@ async function main() {
   if (first === 'apply') return process.exit(cmdApply(root));
   if (first === 'self-update') return c.info(`curl -fsSL https://github.com/${REPO}/releases/latest/download/install.mjs | node`);
   if (!CATALOG[first]) { c.err(`알 수 없는 pack: ${first}`); cmdList(); process.exit(1); }
-  const cmd = a._[1] || 'init';
+  const CMDS = ['init', 'check', 'doctor', 'update', 'remove'];
+  // 모듈 주소지정: `ccx <pack> <module> <cmd>` — a._[1]이 명령이 아니라 모듈명이면 --only로 좁힌다.
+  let cmd = a._[1] || 'init';
+  if (a._[1] && !CMDS.includes(a._[1])) {
+    if (!CATALOG[first].modules[a._[1]]) { c.err(`알 수 없는 모듈: ${first} ${a._[1]}  (모듈: ${Object.keys(CATALOG[first].modules).join(', ')})`); process.exit(1); }
+    a.flags.only = a._[1];
+    cmd = a._[2] || 'init';
+    if (!CMDS.includes(cmd)) { c.err(`알 수 없는 명령: ${cmd}`); c.plain(HELP); process.exit(1); }
+  }
   let code = 0;
   if (cmd === 'init') code = await cmdInit(root, first, a);
   else if (['check', 'doctor', 'update', 'remove'].includes(cmd)) code = cmdGeneric(root, first, cmd, a);

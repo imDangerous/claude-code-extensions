@@ -1,0 +1,15 @@
+/* 스캐폴드(ccx) — Tailwind v4. 의미 토큰을 @theme로 선언한다(SoT). 프로젝트 소유. */
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #3E26FD;
+  --color-primary-foreground: #FFFFFF;
+  --color-destructive: #EE3D3D;
+  --color-destructive-foreground: #FFFFFF;
+  --color-border: #CCCCCC;
+  --color-background: #FFFFFF;
+  --color-foreground: #000000;
+
+  --radius-card: 12px;
+  --radius-pill: 44px;
+}

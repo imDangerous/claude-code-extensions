@@ -4,6 +4,7 @@
   "husky": false,
   "questions": [],
   "targets": [
-    { "src": "nextjs.md", "dest": ".claude/rules/nextjs.md", "kind": "doc" }
+    { "src": "nextjs.md", "dest": ".claude/rules/nextjs.md", "kind": "doc" },
+    { "src": "web-inspector.md", "dest": ".claude/agents/web-inspector.md", "kind": "doc" }
   ]
 }
