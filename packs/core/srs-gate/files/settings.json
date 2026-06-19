@@ -1,0 +1,21 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "_ccx": "__CCX_ID__",
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          { "type": "command", "command": "node .claude/hooks/srs-gate.mjs" }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "_ccx": "__CCX_ID__",
+        "hooks": [
+          { "type": "command", "command": "node .claude/hooks/srs-prompt.mjs" }
+        ]
+      }
+    ]
+  }
+}

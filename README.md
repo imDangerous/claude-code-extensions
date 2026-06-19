@@ -45,6 +45,9 @@ $ ccx apply
 
 옵션: `--yes`(질문0) · `--tailwind v4`(variant) · `--only m1,m2` · `--no-install` · `--dir <path>`
 
+### 옵트인: SRS 게이트 (`--srs-gate`)
+`ccx core init --srs-gate` — **작업 전 SRS 강제**. 승인된 SRS 없이는 소스 편집을 **PreToolUse 훅이 차단**(지시 아닌 훅이 수행 → 우회 불가). 프롬프트 1건 = `specs/NNNN_<slug>.md` 1개(frontmatter: id·date·branch·ticket·epic·status), 사람 승인(`! node .claude/hooks/srs-approve.mjs`) 후 대상 브랜치에서만 구현. 스킬 `/srs` · 룰 `.claude/rules/srs.md`. 기본 off.
+
 ## 명령
 
 ```bash
@@ -78,6 +81,7 @@ packs/<pack>/pack.json          # { name, description, requires:[], concern }
 packs/<pack>/<module>/module.json   # { name, deps, husky, questions[], targets[] }
 packs/<pack>/<module>/files/…   # 설치 파일 (Managed by ccx)
 ```
+타깃 `kind`: `doc`(룰/스킬, 전체 관리) · `static`(파일 그대로, `exec`/`createOnly`) · `hook`(셸 훅 블록 병합, `blockId`/`soleOwner`) · `settings`(`.claude/settings.json` JSON 멱등 병합, `_ccx` 소유 마커).
 `node build.mjs` → `dist/bundle.mjs` 자동 임베드. 엔진 변경 불필요.
 
 ## 라이선스

@@ -2,6 +2,16 @@
 
 [Keep a Changelog](https://keepachangelog.com) 형식. 설치: `curl -fsSL https://github.com/imDangerous/claude-code-extensions/releases/latest/download/install.mjs | node`
 
+## [2.2.0] — 2026-06-19 — SRS 게이트(스펙 주도 강제)
+### Added
+- **`core/srs-gate` 모듈**(opt-in, 기본 off — `ccx core init --srs-gate`) — "작업 전 SRS 강제". 승인된 SRS 없이는 소스 편집(Edit/Write/MultiEdit/NotebookEdit)을 **PreToolUse 훅이 차단**한다. 지시가 아니라 훅이 수행 → 우회 불가.
+  - **PreToolUse 게이트**(`.claude/hooks/srs-gate.mjs`) — `specs/.active` 가 가리키는 SRS 존재 + 본문 채움(자리표시자 `<...>` 없음) + `specs/.approvals/<SRS>.json` 승인 + 대상 브랜치 일치 시에만 통과. `specs/**` 편집(=SRS 작성)은 항상 허용. 긴급 우회 `CCX_SRS_OFF=1`.
+  - **UserPromptSubmit 주입**(`srs-prompt.mjs`) — 매 프롬프트에 SRS 절차 주입.
+  - **승인 명령**(`srs-approve.mjs`) — 사람이 직접 실행(자기 승인 금지). `.approvals/` 마커 생성 + 체크박스/`status` 갱신.
+  - 구조: **플랫 일련번호** `specs/NNNN_<slug>.md`(프롬프트 1건=SRS 1개) + **frontmatter**(id·date·branch·ticket·epic·status). 폴더로 묶지 않고 ticket/epic 으로 연결 → 티켓 없음/사후 생성/다중 태스크 흡수. 룰·스킬(`/srs`)·템플릿 동반.
+- **엔진 `kind: "settings"`** — `.claude/settings.json` JSON **멱등 병합**(`_ccx` 소유 마커로 우리 항목만 식별, 사용자 키 보존, `remove` 시 우리 것만 정리). Claude Code 훅 자동 설치의 기반.
+- **자동 테스트 +3** — settings 병합·srs-gate opt-in·게이트 런타임(차단→승인→허용) → 총 15개.
+
 ## [2.1.2] — 2026-06-19
 ### Fixed
 - **web-idea-researcher 도구 누락** — 본문에서 모호 시 `AskUserQuestion`을 호출하는데 frontmatter `tools:`에 빠져 있어 에이전트가 미부여 도구를 호출하던 동작 버그. `tools:`에 `AskUserQuestion` 추가(형제 web-design-architect·web-product-planner와 일관).

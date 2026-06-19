@@ -1,0 +1,17 @@
+{
+  "name": "srs-gate",
+  "deps": [],
+  "husky": false,
+  "questions": [
+    { "key": "srsGate", "type": "bool", "default": false, "prompt": "SRS 게이트(작업 전 SRS 강제 — PreToolUse 훅) 설치?", "flag": "srs-gate" }
+  ],
+  "targets": [
+    { "src": "hooks/srs-gate.mjs", "dest": ".claude/hooks/srs-gate.mjs", "kind": "static", "exec": true, "enabledIf": "srsGate" },
+    { "src": "hooks/srs-prompt.mjs", "dest": ".claude/hooks/srs-prompt.mjs", "kind": "static", "exec": true, "enabledIf": "srsGate" },
+    { "src": "hooks/srs-approve.mjs", "dest": ".claude/hooks/srs-approve.mjs", "kind": "static", "exec": true, "enabledIf": "srsGate" },
+    { "src": "settings.json", "dest": ".claude/settings.json", "kind": "settings", "blockId": "core/srs-gate", "enabledIf": "srsGate" },
+    { "src": "srs.md", "dest": ".claude/rules/srs.md", "kind": "doc", "enabledIf": "srsGate" },
+    { "src": "skills/srs/SKILL.md", "dest": ".claude/skills/srs/SKILL.md", "kind": "doc", "enabledIf": "srsGate" },
+    { "src": "templates/srs.md", "dest": "specs/_template/srs.md", "kind": "static", "createOnly": true, "enabledIf": "srsGate" }
+  ]
+}
