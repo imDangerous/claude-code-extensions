@@ -1,0 +1,9 @@
+{
+  "name": "validation",
+  "deps": [],
+  "husky": false,
+  "questions": [],
+  "targets": [
+    { "src": "validation.md", "dest": ".claude/rules/validation.md", "kind": "doc" }
+  ]
+}

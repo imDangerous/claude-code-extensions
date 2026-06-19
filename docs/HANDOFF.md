@@ -13,6 +13,12 @@
 - packs(**전부 실콘텐츠**): **core**(git·agent-workflow·qa-reviewer·orchestrate) · **js**→core(architecture·biome·typescript) · **web**→js(nextjs·tailwind·vitest, 에이전트 8+스킬 2) · **app**→js(expo, 에이전트 8+스킬 2). app/web 파이프라인 대칭(plan→design→build→QA).
 - 릴리스 절차(계정 전환 push 명령)는 아래 "릴리스 절차" 참고. 패치 시: package.json + README/install.mjs 핀 bump → build → 커밋 → 태그 push.
 
+## 팩 확장 (계획: `docs/plans/2026-06-19-packs-expansion.md`)
+- 비전: **React(web)·Expo(app)·Spring(backend)** 3타겟. backend 팩 신설 + web/core 룰 충실화. 확정: backend=Kotlin/Java variant·entropy=복잡도예산·공통룰 js공유·단계적.
+- **Phase 1 완료 (2026-06-19 15차)**: core 원칙 룰 4개 신설 — `validation`(경계 검증·fail-closed)·`observability`(구조적 로깅·상관ID·에러추적·PII금지)·`entropy`(예산: 파일300/함수50/순환복잡도10/중첩3/중복3)·`git-branching`(trunk-based, **opt-in** `--git-branching`). core init→ validation/observability/entropy 항상 배포·git-branching opt-out 기본(검증). entropy↔biome: complexity off 유지(cyclomatic≠cognitive — 룰에 문서화, 강제 안 함).
+- **⚠️ @import 예산 경고**: web install @import 룰 **284줄**(권고 ~200 초과, Phase 1으로 +66). 후속 Phase(react·validation-zod·harness-web·observability-web 등)에서 더 늘어남 → **apply의 무조건 @import 모델 재검토 필요**(일부 룰을 에이전트-scoped로? 중복 제거? digest?). Phase 2 착수 전 결정 권장.
+- 남은: Phase 2(js/react·validation-zod) → 3(web harness-web·observability-web) → 4(backend Spring 팩) → 5(선택 에이전트). 미해결: entropy 측정 자동화·backend 빌드도구(Gradle/Maven)·observability 도구 고정도·backend 에이전트 네이밍.
+
 ## 검증된 동작 (실측)
 - `ccx web init` → core+js+web 자동 동반(requires), 전 타입 설치, 공유 config(`.claude/extends/config.json`, 합집합·중복제거).
 - git transform(공유 config 읽음)→`[RP-5] ✨`, commitlint ✅. `ccx apply` idempotent + 기존 CLAUDE.md 보존 + 룰 @import. `ccx app init`→core+js+app.

@@ -1,0 +1,11 @@
+{
+  "name": "git-branching",
+  "deps": [],
+  "husky": false,
+  "questions": [
+    { "key": "gitBranching", "type": "bool", "default": false, "prompt": "Trunk-based 브랜치 전략 룰 추가?", "flag": "git-branching" }
+  ],
+  "targets": [
+    { "src": "git-branching.md", "dest": ".claude/rules/git-branching.md", "kind": "doc", "enabledIf": "gitBranching" }
+  ]
+}

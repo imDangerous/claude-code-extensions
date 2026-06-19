@@ -1,0 +1,9 @@
+{
+  "name": "entropy",
+  "deps": [],
+  "husky": false,
+  "questions": [],
+  "targets": [
+    { "src": "entropy.md", "dest": ".claude/rules/entropy.md", "kind": "doc" }
+  ]
+}
