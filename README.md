@@ -17,7 +17,7 @@ ccx list          # 팩/모듈 목록
 ```bash
 curl -fsSL https://github.com/imDangerous/claude-code-extensions/releases/latest/download/install.mjs | node
 # 버전 핀:
-curl -fsSL https://github.com/imDangerous/claude-code-extensions/releases/download/v2.1.0/install.mjs | node
+curl -fsSL https://github.com/imDangerous/claude-code-extensions/releases/download/v2.1.1/install.mjs | node
 ```
 `~/.local/bin/ccx` 런처. npm/토큰 불필요.
 
