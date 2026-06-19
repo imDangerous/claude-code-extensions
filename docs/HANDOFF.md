@@ -4,8 +4,9 @@
 > 릴리스 이력 = `CHANGELOG.md`. 설계 시각화 = `docs/architecture.html`. 사용법 = `README.md`. 확장 계획 = `docs/plans/2026-06-19-packs-expansion.md`.
 > (세션별 상세 로그는 git history + CHANGELOG 참조 — 이 문서는 현재 상태 + 불변 설계 결정만.)
 
-## 현재 상태 — ✅ v2.1.1 (`releases/latest`)
-- 원격 `main` = v2.1.1 태그 커밋. CI(ci.yml) green(테스트 12). working tree 클린. gh 계정 link-readypost. 실프로젝트(ov-fe-edocument) 적용·검증 완료.
+## 현재 상태 — ✅ v2.1.2 (`releases/latest`)
+- 원격 `main` = v2.1.2 태그 커밋. CI(ci.yml) green(테스트 12). Release 워크플로 success. working tree 클린. gh 계정 link-readypost. 실프로젝트(ov-fe-edocument) 적용·검증 완료.
+- **v2.1.2 패치**(web 에이전트 템플릿): web-idea-researcher `tools:`에 `AskUserQuestion` 추가(본문 호출 vs 미부여 동작 버그) · qa-reviewer 재검수 한도 명시(N→기본 3회) · web-inspector 시크릿 grep 패턴 구체화. 상세 = CHANGELOG.
 - **5팩 · 3타겟**:
   - **core**(전 스택): git(컨벤션)·agent-workflow·qa-reviewer·orchestrate·validation·observability·entropy·git-branching(opt-in)
   - **js**→core: architecture·biome·typescript·react·validation-zod·git-hooks
