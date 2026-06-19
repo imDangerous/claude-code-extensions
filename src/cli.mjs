@@ -36,6 +36,35 @@ const write = (p, s) => {
 };
 const eol = (s) => s.replace(/\r\n/g, '\n');
 
+// ── settings.json JSON 병합 (kind:"settings") ─────────────────────
+// ccx 소유 배열 항목은 `_ccx === id` 마커로 식별 → 멱등 재설치/제거 가능. 사용자 키는 보존.
+const isObj = (x) => x !== null && typeof x === 'object' && !Array.isArray(x);
+function mergeSettings(cur, frag, id) {
+  const out = isObj(cur) ? { ...cur } : {};
+  for (const [k, v] of Object.entries(frag)) {
+    if (Array.isArray(v)) {
+      const base = Array.isArray(out[k]) ? out[k].filter((e) => !(isObj(e) && e._ccx === id)) : [];
+      out[k] = [...base, ...v];
+    } else if (isObj(v)) out[k] = mergeSettings(isObj(out[k]) ? out[k] : {}, v, id);
+    else out[k] = v;
+  }
+  return out;
+}
+function stripSettings(cur, id) {
+  if (Array.isArray(cur)) return cur.filter((e) => !(isObj(e) && e._ccx === id)).map((e) => stripSettings(e, id));
+  if (isObj(cur)) {
+    const o = {};
+    for (const [k, v] of Object.entries(cur)) {
+      const sv = stripSettings(v, id);
+      if (Array.isArray(sv) && !sv.length) continue;
+      if (isObj(sv) && !Object.keys(sv).length) continue;
+      o[k] = sv;
+    }
+    return o;
+  }
+  return cur;
+}
+
 function parseArgs(argv) {
   const out = { _: [], flags: {} };
   for (let i = 0; i < argv.length; i++) {
@@ -137,6 +166,12 @@ function classify(root, t, rendered, id) {
     if (mine !== null) return mine === extractBlock(ren, id) && !foreign ? 'IDENTICAL' : 'UPDATE';
     return foreign ? 'UPDATE' : 'MERGE';
   }
+  if (t.kind === 'settings') {
+    let curObj; try { curObj = JSON.parse(cur || '{}'); } catch { return 'FOREIGN'; }
+    const merged = mergeSettings(curObj, JSON.parse(ren), id);
+    if (JSON.stringify(curObj) === JSON.stringify(merged)) return 'IDENTICAL';
+    return JSON.stringify(curObj).includes(`"_ccx":"${id}"`) ? 'UPDATE' : 'MERGE';
+  }
   if (sha(cur) === sha(ren)) return 'IDENTICAL';
   if (cur.includes(SENTINEL)) return 'UPDATE';
   return 'FOREIGN';
@@ -146,6 +181,15 @@ const activeTargets = (mf, cfg) => mf.targets.filter((t) => targetEnabled(t, cfg
 function writeTarget(root, t, rendered, status, id) {
   id = t.blockId || id;
   const p = join(root, t.dest);
+  if (t.kind === 'settings') {
+    let curObj = {};
+    if (existsSync(p)) {
+      try { curObj = JSON.parse(read(p) || '{}'); }
+      catch { writeFileSync(`${p}.ccx-bak`, read(p)); c.warn(`백업: ${t.dest}.ccx-bak (파싱 실패)`); }
+    }
+    write(p, `${JSON.stringify(mergeSettings(curObj, JSON.parse(rendered), id), null, 2)}\n`);
+    return;
+  }
   if (t.kind === 'hook') {
     if (!existsSync(p)) { write(p, rendered); chmodSync(p, 0o755); return; }
     let body = read(p);
@@ -328,6 +372,13 @@ function cmdGeneric(root, packName, cmd, args) {
     for (const { m, id } of targetList) for (const t of m.manifest.targets) {
       const p = join(root, t.dest);
       if (!existsSync(p)) continue;
+      if (t.kind === 'settings') {
+        let obj; try { obj = JSON.parse(read(p) || '{}'); } catch { c.warn(`skip ${t.dest} (파싱 실패)`); continue; }
+        const stripped = stripSettings(obj, t.blockId || id);
+        if (!Object.keys(stripped).length) { rmSync(p); c.ok(`removed ${t.dest}`); }
+        else { write(p, `${JSON.stringify(stripped, null, 2)}\n`); c.ok(`cleaned ${t.dest}`); }
+        continue;
+      }
       if (t.kind === 'hook') {
         const cur = read(p).split('\n'); const [s, e] = findBlock(cur, t.blockId || id);
         if (s === -1) { c.warn(`skip ${t.dest}`); continue; }

@@ -4,11 +4,15 @@
 > 릴리스 이력 = `CHANGELOG.md`. 설계 시각화 = `docs/architecture.html`. 사용법 = `README.md`. 확장 계획 = `docs/plans/2026-06-19-packs-expansion.md`.
 > (세션별 상세 로그는 git history + CHANGELOG 참조 — 이 문서는 현재 상태 + 불변 설계 결정만.)
 
-## 현재 상태 — ✅ v2.1.2 (`releases/latest`)
-- 원격 `main` = v2.1.2 태그 커밋. CI(ci.yml) green(테스트 12). Release 워크플로 success. working tree 클린. gh 계정 link-readypost. 실프로젝트(ov-fe-edocument) 적용·검증 완료.
-- **v2.1.2 패치**(web 에이전트 템플릿): web-idea-researcher `tools:`에 `AskUserQuestion` 추가(본문 호출 vs 미부여 동작 버그) · qa-reviewer 재검수 한도 명시(N→기본 3회) · web-inspector 시크릿 grep 패턴 구체화. 상세 = CHANGELOG.
+## 현재 상태 — ✅ v2.2.0 (PR 대기 / 미태그)
+- **v2.2.0 (작업 중, `feat/srs-gate` 브랜치 → PR base main)**: SRS 게이트 + 엔진 `settings` kind 추가. 테스트 15개 green. *아직 미태그·미릴리스* — 머지 후 릴리스 절차(아래 운영) 수행.
+- 직전 릴리스: v2.1.2(`releases/latest`). 실프로젝트(ov-fe-edocument) 적용·검증 완료. gh 계정 link-readypost.
+- **v2.2.0 신규**:
+  - **`core/srs-gate`**(opt-in `--srs-gate`, 기본 off) — "작업 전 SRS 강제". PreToolUse 훅이 미승인 소스 편집 차단(우회 불가). `specs/.active` 포인터 + `specs/.approvals/<SRS>.json` 승인 + 대상 브랜치 일치. 플랫 일련번호 `specs/NNNN_<slug>.md` + frontmatter(ticket/epic 으로 묶음). 훅 3종(gate/prompt/approve)·룰·스킬 `/srs`·템플릿.
+  - **엔진 `kind: "settings"`** — `.claude/settings.json` JSON 멱등 병합(`_ccx` 마커, 사용자 키 보존, remove 정리). Claude Code 훅 자동 설치 기반. (기존 3 kind=doc/static/hook → 4종)
+  - ⚠️ 이건 HANDOFF의 "거버넌스 승인게이트 의도적 폐기"(아래)와 **다른 것** — 그건 readypost 특화 CLAUDE.md 산문 룰이었고, 이건 훅 강제·opt-in·제너럴 모듈. 폐기 결정과 모순 아님.
 - **5팩 · 3타겟**:
-  - **core**(전 스택): git(컨벤션)·agent-workflow·qa-reviewer·orchestrate·validation·observability·entropy·git-branching(opt-in)
+  - **core**(전 스택): git(컨벤션)·agent-workflow·qa-reviewer·orchestrate·validation·observability·entropy·git-branching(opt-in)·srs-gate(opt-in)
   - **js**→core: architecture·biome·typescript·react·validation-zod·git-hooks
   - **web**→js: nextjs·tailwind(v3*/v4)·vitest·harness-web·observability-web (+ 에이전트 8·스킬 2)
   - **app**→js: expo (+ 에이전트 8·스킬 2)
@@ -33,7 +37,7 @@
 - RN 원본 참조: `~/Workspace/Link/github/react-native-fsd-agent-template/.claude/`.
 
 ## 운영
-- **테스트**: `npm test`(build + node:test, `test/cli.test.mjs` 12개). CI=`ci.yml`(push/PR).
+- **테스트**: `npm test`(build + node:test, `test/cli.test.mjs` 15개). CI=`ci.yml`(push/PR).
 - **릴리스(패치)**: ① `package.json`+`README.md`+`src/install.mjs` 핀 bump → `node build.mjs` → 커밋 → `git tag -a vX.Y.Z` ② imDangerous로 push ③ `gh release edit vX.Y.Z --notes-file <md>` ④ 검증 `curl …/latest/… | node` → `ccx version`.
   ```
   gh auth switch --user imDangerous
