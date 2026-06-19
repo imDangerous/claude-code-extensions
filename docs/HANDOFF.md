@@ -3,9 +3,9 @@
 > 작성 2026-06-18, 갱신 2026-06-19. 로컬 경로 `/Users/link/Workspace/claude-code-extensions`. 리모트 `imDangerous/claude-code-extensions`.
 > 설계 시각화: `docs/architecture.html`. 사용법: `README.md`.
 
-## 현재 상태 — ✅ v2.1.0 릴리스 (2026-06-19, 팩 확장)
-- **릴리스됨**: 태그 `v2.0.0`~`v2.0.2`·**`v2.1.0`** 게시(자산 bundle.mjs+install.mjs), `releases/latest`=**v2.1.0**. release.yml success. 게시 install.mjs 실설치 종단 검증(`ccx version`=2.1.0, list에 backend 포함). 릴리스 노트 작성·반영. gh 계정 link-readypost 복구.
-- **원격 `main` HEAD = v2.1.0 커밋(`7a5de4c`)**. working tree 클린.
+## 현재 상태 — ✅ v2.1.1 릴리스 (2026-06-19, 팩 확장 + 훅 self-heal)
+- **릴리스됨**: 태그 `v2.0.0`~`v2.1.0`·**`v2.1.1`** 게시(자산 bundle.mjs+install.mjs), `releases/latest`=**v2.1.1**. release.yml·CI success. 게시 install.mjs 실설치 종단 검증(`ccx version`=2.1.1). 각 릴리스 노트 작성·반영. gh 계정 link-readypost 복구.
+- **원격 `main` HEAD = v2.1.1 커밋(`8551b3c`)**. CI(ci.yml) green(12 테스트). working tree 클린.
 - 구조: `packs/<pack>/{pack.json, <module>/{module.json, files/}}` · `src/cli.mjs`(엔진) · `build.mjs`(임베드) · `src/install.mjs`.
 - 명령: `ccx <pack> init|check|doctor|update|remove` · `ccx <pack> <module> <cmd>` · `ccx apply` · `ccx list`. (BREAKING: v1 `ccx <category> <module>` 폐기)
 - packs(**전부 실콘텐츠, 3타겟**): **core**(git·agent-workflow·qa-reviewer·orchestrate·validation·observability·entropy·git-branching) · **js**→core(architecture·biome·typescript·react·validation-zod·git-hooks) · **web**→js(nextjs·tailwind·vitest·harness-web·observability-web, 에이전트 8+스킬 2) · **app**→js(expo, 에이전트 8+스킬 2) · **backend**→core(spring·validation/observability/testing-backend, Kotlin/Java variant). @import 2계층(always-on 헌법급만, 나머지 색인).
