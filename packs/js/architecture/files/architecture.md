@@ -1,4 +1,5 @@
 <!-- Managed by ccx -->
+<!-- ccx:always -->
 # 프론트엔드 아키텍처 — UI/로직 분리 (Humble View + hooks as ViewModel)
 
 > 컴포넌트 기반 UI(React·React Native)에서 **비즈니스 로직이 UI를 직접 다루지 않게** 한다. UI는 자주 바뀌므로 갈아끼울 수 있어야 하고(swappable), 로직은 렌더러 없이 테스트 가능해야 한다.

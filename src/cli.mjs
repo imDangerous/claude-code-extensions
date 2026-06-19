@@ -19,6 +19,7 @@ const CONFIG = join('.claude', 'extends', 'config.json');
 const CLAUDE = 'CLAUDE.md';
 const CM_START = '<!-- ccx:managed:start -->';
 const CM_END = '<!-- ccx:managed:end -->';
+const MARK_ALWAYS = 'ccx:always'; // 룰 파일에 이 마커가 있으면 always-on(@import), 없으면 색인만(on-demand)
 
 const c = {
   ok: (m) => console.log(`\x1b[32m[✓]\x1b[0m ${m}`),
@@ -251,12 +252,22 @@ async function cmdInit(root, packName, args) {
 
 function cmdApply(root) {
   const rd = join(root, '.claude', 'rules');
-  const docs = [];
+  // 2계층: ccx:always 마커 룰만 @import(always-on), 나머지는 색인만(필요 시 읽기) — always-on 컨텍스트 최소화.
+  const always = [], ondemand = [];
   if (existsSync(rd)) for (const f of readdirSync(rd).sort()) {
     if (!f.endsWith('.md')) continue;
-    if (read(join(rd, f)).includes(SENTINEL)) docs.push(`@.claude/rules/${f}`);
+    const body = read(join(rd, f));
+    if (!body.includes(SENTINEL)) continue;
+    if (body.includes(MARK_ALWAYS)) always.push(`@.claude/rules/${f}`);
+    else {
+      const title = (body.split('\n').find((l) => l.startsWith('# ')) || `# ${f}`).slice(2).trim();
+      ondemand.push(`- \`.claude/rules/${f}\` — ${title}`);
+    }
   }
-  const block = [CM_START, '## AI 표준 (ccx 관리 — 직접 수정 금지. `ccx apply`로 갱신)', ...docs, CM_END].join('\n');
+  const lines = [CM_START, '## AI 표준 (ccx 관리 — 직접 수정 금지. `ccx apply`로 갱신)', ...always];
+  if (ondemand.length) lines.push('', '### 상세 규약 (해당 영역 작업 시 해당 파일을 읽는다 — always-on 아님)', ...ondemand);
+  lines.push(CM_END);
+  const block = lines.join('\n');
   const cp = join(root, CLAUDE);
   let content = existsSync(cp) ? read(cp) : `# ${basename(root)}\n`;
   if (content.includes(CM_START)) {
@@ -266,7 +277,7 @@ function cmdApply(root) {
     content = L.join('\n');
   } else content = `${block}\n\n${content}`;
   write(cp, content);
-  c.ok(`CLAUDE.md 갱신 — 룰 ${docs.length}개 @import 주입`);
+  c.ok(`CLAUDE.md 갱신 — always-on ${always.length}개 @import + 상세 색인 ${ondemand.length}개`);
   return 0;
 }
 

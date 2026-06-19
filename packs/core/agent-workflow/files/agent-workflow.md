@@ -1,4 +1,5 @@
 <!-- Managed by ccx -->
+<!-- ccx:always -->
 # 에이전트 작업 흐름 (harness 엔지니어링)
 
 > AI 에이전트의 표준 작업 절차. 사람이 다시 지시하지 않아도 같은 품질로 재현되는 것이 목표.
@@ -27,7 +28,7 @@
 
 ## Claude Code 프리미티브 — 올바른 도구 선택
 13. **skill / subagent / hook 구분** — *skill*(`.claude/skills/*/SKILL.md`)=재사용 절차(이름+설명로 점진 노출) · *subagent*(`.claude/agents/*.md`, frontmatter `description`/`tools`/`model`)=컨텍스트 격리 워커 · *hook*(PreToolUse/PostToolUse/Stop 등)=**매번 강제**돼야 하는 결정적 동작(자동 포맷·위험 명령 차단)은 CLAUDE.md 산문이 아니라 hook으로.
-14. **CLAUDE.md는 짧게(~200줄 목표)**, 경로별 지침은 `.claude/rules/`로 분리(긴 메모리는 규칙이 묻힌다). 권한은 deny-first + 도구/파라미터 글롭으로 좁힌다.
+14. **always-on 컨텍스트를 최소화**(핵심 원칙) — "~200줄"은 숫자 목표가 아니라 *always-on을 작게 유지하라*는 원칙(context rot 방지). CLAUDE.md엔 **전 작업에 적용되는 헌법급 원칙만** 상시 두고(ccx: `ccx:always` 마커 룰만 @import), 프레임워크/툴 상세는 **on-demand**(색인만 두고 해당 영역 작업 시 읽기)로 분리. 권한은 deny-first + 도구/파라미터 글롭으로 좁힌다.
 
 ## DON'T
 - 문서 갱신 없이 코드만 쌓지 않는다 · 로컬 검증 없이 push·PR 하지 않는다(`--no-verify` 금지) · 계획 없이 대규모 리팩터(5파일↑) 시작하지 않는다 · "작동한다"를 실행 없이 선언하지 않는다.
