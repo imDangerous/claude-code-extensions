@@ -1,0 +1,9 @@
+{
+  "name": "observability-backend",
+  "deps": [],
+  "husky": false,
+  "questions": [],
+  "targets": [
+    { "src": "observability-backend.md", "dest": ".claude/rules/observability-backend.md", "kind": "doc" }
+  ]
+}

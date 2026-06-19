@@ -1,0 +1,9 @@
+{
+  "name": "testing-backend",
+  "deps": [],
+  "husky": false,
+  "questions": [],
+  "targets": [
+    { "src": "testing-backend.md", "dest": ".claude/rules/testing-backend.md", "kind": "doc" }
+  ]
+}

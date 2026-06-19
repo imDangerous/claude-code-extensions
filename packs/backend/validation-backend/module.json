@@ -1,0 +1,9 @@
+{
+  "name": "validation-backend",
+  "deps": [],
+  "husky": false,
+  "questions": [],
+  "targets": [
+    { "src": "validation-backend.md", "dest": ".claude/rules/validation-backend.md", "kind": "doc" }
+  ]
+}

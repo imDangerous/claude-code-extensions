@@ -1,0 +1,6 @@
+{
+  "name": "backend",
+  "description": "Spring 백엔드 — 구조·검증·관측·테스트 (Kotlin/Java variant)",
+  "requires": ["core"],
+  "concern": "backend"
+}
