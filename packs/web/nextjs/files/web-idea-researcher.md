@@ -1,7 +1,7 @@
 ---
 name: web-idea-researcher
 description: 웹/SaaS 제품 아이디어를 리서치·제안한다. 시장/경쟁 제품 분석, SEO 기회, 페인포인트 발굴, 실현 가능한 아이디어 3~5개 제안. "아이디어 줘", "뭐 만들까", "시장 조사", "경쟁 서비스 분석" 요청 시 사용.
-tools: WebSearch, WebFetch, Read, Write
+tools: WebSearch, WebFetch, Read, Write, AskUserQuestion
 ---
 <!-- Managed by ccx -->
 

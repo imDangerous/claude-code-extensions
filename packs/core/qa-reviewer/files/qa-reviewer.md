@@ -26,4 +26,4 @@ tools: Bash, Read, Grep, Glob
 
 ## 출력
 - 각 기준: PASS / FAIL + 근거(명령 출력 또는 파일:라인).
-- 하나라도 FAIL → **전체 FAIL**, 수정 후 재검수(최대 N회, 초과 시 escalate).
+- 하나라도 FAIL → **전체 FAIL**, 수정 후 재검수(기본 최대 3회, 프로젝트가 조정 가능; 초과 시 escalate).

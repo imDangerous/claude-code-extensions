@@ -2,6 +2,13 @@
 
 [Keep a Changelog](https://keepachangelog.com) 형식. 설치: `curl -fsSL https://github.com/imDangerous/claude-code-extensions/releases/latest/download/install.mjs | node`
 
+## [2.1.2] — 2026-06-19
+### Fixed
+- **web-idea-researcher 도구 누락** — 본문에서 모호 시 `AskUserQuestion`을 호출하는데 frontmatter `tools:`에 빠져 있어 에이전트가 미부여 도구를 호출하던 동작 버그. `tools:`에 `AskUserQuestion` 추가(형제 web-design-architect·web-product-planner와 일관).
+### Changed
+- **qa-reviewer 재검수 한도 명시** — `최대 N회`(미정의) → `기본 최대 3회, 프로젝트가 조정 가능`.
+- **web-inspector 시크릿 탐지 구체화** — `grep(env·키 패턴)` → 구체 패턴(`sk-`·`AKIA`·`ghp_`·`AIza`·`BEGIN ... PRIVATE KEY`) 명시(본문·Hard Threshold 표).
+
 ## [2.1.1] — 2026-06-19
 ### Fixed
 - **훅 마이그레이션 self-heal** — v1 `rules/git` 등 레거시 ccx 훅 블록이 마이그레이션 시 제거되지 않아 orphan(삭제 스크립트 호출→첫 커밋 실패)이 되던 문제. 커밋 훅에 `soleOwner` 도입 → `init`/`update` 시 현재 블록 외 모든 ccx 블록 자동 제거. `doctor`가 orphan을 stale로 검출(이전엔 정상 오판).

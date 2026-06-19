@@ -45,7 +45,7 @@ tools: Read, Grep, Glob, Bash
 - 구조화 데이터(JSON-LD) 해당 시. viewport 설정, 반응형. `metadata`/`generateMetadata`로 관리.
 
 ## 5. 보안 (클라이언트 경계)
-- 시크릿이 클라이언트 번들/`NEXT_PUBLIC_*` 외 env 노출 0. API 키 커밋 0(grep).
+- 시크릿이 클라이언트 번들/`NEXT_PUBLIC_*` 외 env 노출 0. API 키 커밋 0 — `grep -nE '(sk-[a-zA-Z0-9]{16,}|AKIA[0-9A-Z]{16}|ghp_[a-zA-Z0-9]{36}|-----BEGIN [A-Z ]*PRIVATE KEY-----|AIza[0-9A-Za-z_\-]{35})'`.
 - 입력 검증·sanitize(XSS). `dangerouslySetInnerHTML` 사용 시 sanitize 필수.
 - `eval()`/`new Function()`/문자열 `setTimeout` 금지. 외부 스크립트 SRI, `postMessage` origin 검증, CORS 정확.
 - 전 리소스 HTTPS. CSP 헤더(해당 시).
@@ -57,7 +57,7 @@ tools: Read, Grep, Glob, Bash
 | target size < 24×24px (인터랙티브) | 0 | 코드/스타일 분석 |
 | CLS 유발(이미지 치수 미지정 등) | 0 | 코드 분석 |
 | 불필요한 최상위 `'use client'` / client 초기 useEffect 패칭 | 0 | grep + 컴포넌트 검토 |
-| 클라이언트 시크릿/키 노출 | 0 | `grep`(env·키 패턴) |
+| 클라이언트 시크릿/키 노출 | 0 | `grep -nE '(sk-\|AKIA\|ghp_\|AIza\|-----BEGIN .*PRIVATE KEY)'` + env 점검 |
 | `eval`/`dangerouslySetInnerHTML`(미sanitize) | 0 | grep |
 | canonical/title/meta description 누락(주요 페이지) | 0 | 코드 분석 |
 | 프레젠테이션 컴포넌트의 직접 패칭/비즈니스 로직 | 0 | 컴포넌트 검토 |
