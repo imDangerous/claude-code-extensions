@@ -2,6 +2,13 @@
 
 [Keep a Changelog](https://keepachangelog.com) 형식. 설치: `curl -fsSL https://github.com/imDangerous/claude-code-extensions/releases/latest/download/install.mjs | node`
 
+## [2.2.1] — 2026-06-19 — SRS 게이트 실환경 검증 + 패치
+### Fixed
+- **게이트 차단 메시지 옛 경로** — "활성 SRS 없음" 차단 문구가 폐기된 폴더 방식(`specs/<작업단위>_<날짜>/NNN_...`)을 안내해 프롬프트 훅/스킬(플랫)과 모순되던 문제. `specs/NNNN_<slug>.md`(일련번호)로 통일.
+- **hook 스크립트 자동 갱신 불가** — `.claude/hooks/*.mjs`(kind:static)에 `Managed by ccx` sentinel이 없어 `ccx update` 시 FOREIGN으로 분류·스킵되던 문제(=패치가 기존 설치에 전파 안 됨). sentinel 추가 → `update`로 갱신, `remove`로 정리.
+### Verified
+- **실프로젝트(ov-fe-edocument) 실세션 검증 완료** — `--srs-gate` 설치 후 실제 Claude Code 세션에서 settings.json의 `_ccx` 마커 훅이 인식되어 SRS 없는 소스 편집을 차단함을 실증(파일 미생성). settings 병합이 기존 `permissions`/`$schema` 보존도 확인.
+
 ## [2.2.0] — 2026-06-19 — SRS 게이트(스펙 주도 강제)
 ### Added
 - **`core/srs-gate` 모듈**(opt-in, 기본 off — `ccx core init --srs-gate`) — "작업 전 SRS 강제". 승인된 SRS 없이는 소스 편집(Edit/Write/MultiEdit/NotebookEdit)을 **PreToolUse 훅이 차단**한다. 지시가 아니라 훅이 수행 → 우회 불가.

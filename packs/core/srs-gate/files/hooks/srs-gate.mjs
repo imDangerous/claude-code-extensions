@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Managed by ccx — 직접 수정 금지(ccx update로 갱신).
 // ccx SRS 게이트 (PreToolUse: Edit|Write|MultiEdit|NotebookEdit)
 // 승인된 SRS 없이 소스 편집을 차단한다. specs/ 아래 편집(=SRS 작성)만 허용.
 //   통과 조건: specs/.active 가 가리키는 SRS 가 존재 + 내용 채움 + 같은 디렉토리에 .approved + 대상 브랜치 일치.
@@ -25,7 +26,7 @@ if (rel.startsWith('../') || rel === 'specs' || rel.startsWith('specs/')) allow(
 
 const activeFile = join(cwd, 'specs', '.active');
 if (!existsSync(activeFile)) {
-  deny('활성 SRS가 없습니다. 작업 전 SRS를 먼저 작성하세요(skill: /srs): specs/<작업단위>_<날짜>/NNN_<slug>.md 작성 후 그 경로를 specs/.active 에 기록하고 사용자 승인을 받으세요.');
+  deny('활성 SRS가 없습니다. 작업 전 SRS를 먼저 작성하세요(skill: /srs): specs/NNNN_<slug>.md(일련번호) 작성 후 그 경로를 specs/.active 에 기록하고 사용자 승인을 받으세요.');
 }
 const activeRel = readFileSync(activeFile, 'utf8').trim();
 if (!activeRel) deny('specs/.active 가 비어 있습니다. 현재 작업 중인 SRS 파일 경로를 한 줄로 기록하세요.');

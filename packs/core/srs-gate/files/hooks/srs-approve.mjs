@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Managed by ccx — 직접 수정 금지(ccx update로 갱신).
 // ccx SRS 승인 — 사람이 직접 실행한다(에이전트가 대신 실행하지 말 것).
 //   ! node .claude/hooks/srs-approve.mjs [브랜치]
 // 현재 활성 SRS(specs/.active)를 검토 후, 현재(또는 인자) 브랜치를 대상으로 승인 마커(.approved)를 만든다.

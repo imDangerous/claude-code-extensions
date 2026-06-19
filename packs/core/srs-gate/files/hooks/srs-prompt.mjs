@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Managed by ccx — 직접 수정 금지(ccx update로 갱신).
 // ccx SRS 게이트 (UserPromptSubmit) — 매 프롬프트에 작업 규칙을 컨텍스트로 주입한다(stdout).
 process.stdout.write(
   [

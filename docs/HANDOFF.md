@@ -4,10 +4,10 @@
 > 릴리스 이력 = `CHANGELOG.md`. 설계 시각화 = `docs/architecture.html`. 사용법 = `README.md`. 확장 계획 = `docs/plans/2026-06-19-packs-expansion.md`.
 > (세션별 상세 로그는 git history + CHANGELOG 참조 — 이 문서는 현재 상태 + 불변 설계 결정만.)
 
-## 현재 상태 — ✅ v2.2.0 (`releases/latest`)
-- 원격 `main` = v2.2.0 태그 커밋(PR #1 squash 머지). CI green(테스트 15). Release 워크플로 success, `releases/latest` = v2.2.0 검증(`curl …/latest/bundle.mjs | node - version` → 2.2.0). working tree 클린. gh 계정 link-readypost.
-- **v2.2.0**: SRS 게이트 + 엔진 `settings` kind 추가.
-- ⚠️ 실프로젝트(ov-fe-edocument) `--srs-gate` 설치 후 실세션 훅 인식·차단/승인 동작은 **미검증**(`_ccx` 마커 무시 전제 실증 1회 필요).
+## 현재 상태 — ✅ v2.2.1 (`releases/latest`)
+- 원격 `main` = v2.2.1 태그. CI green(테스트 16). Release 워크플로 success, `releases/latest` = v2.2.1. 로컬 글로벌 ccx·실프로젝트(ov-fe-edocument) 모두 v2.2.1로 업데이트 완료.
+- **v2.2.0**: SRS 게이트 + 엔진 `settings` kind 추가. **v2.2.1**: 게이트 차단 메시지 옛 경로 fix + hook 스크립트에 `Managed by ccx` sentinel(update/remove 정상화).
+- ✅ **실세션 검증 완료** — ov-fe-edocument에서 nested `claude -p`가 SRS 없는 Write를 실제 차단(`_ccx` 마커 무시 전제 실증). settings 병합이 기존 permissions/$schema 보존도 확인.
 - **v2.2.0 신규**:
   - **`core/srs-gate`**(opt-in `--srs-gate`, 기본 off) — "작업 전 SRS 강제". PreToolUse 훅이 미승인 소스 편집 차단(우회 불가). `specs/.active` 포인터 + `specs/.approvals/<SRS>.json` 승인 + 대상 브랜치 일치. 플랫 일련번호 `specs/NNNN_<slug>.md` + frontmatter(ticket/epic 으로 묶음). 훅 3종(gate/prompt/approve)·룰·스킬 `/srs`·템플릿.
   - **엔진 `kind: "settings"`** — `.claude/settings.json` JSON 멱등 병합(`_ccx` 마커, 사용자 키 보존, remove 정리). Claude Code 훅 자동 설치 기반. (기존 3 kind=doc/static/hook → 4종)
@@ -38,7 +38,7 @@
 - RN 원본 참조: `~/Workspace/Link/github/react-native-fsd-agent-template/.claude/`.
 
 ## 운영
-- **테스트**: `npm test`(build + node:test, `test/cli.test.mjs` 15개). CI=`ci.yml`(push/PR).
+- **테스트**: `npm test`(build + node:test, `test/cli.test.mjs` 16개). CI=`ci.yml`(push/PR).
 - **릴리스(패치)**: ① `package.json`+`README.md`+`src/install.mjs` 핀 bump → `node build.mjs` → 커밋 → `git tag -a vX.Y.Z` ② imDangerous로 push ③ `gh release edit vX.Y.Z --notes-file <md>` ④ 검증 `curl …/latest/… | node` → `ccx version`.
   ```
   gh auth switch --user imDangerous
