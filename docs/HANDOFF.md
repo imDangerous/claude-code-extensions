@@ -4,9 +4,10 @@
 > 릴리스 이력 = `CHANGELOG.md`. 설계 시각화 = `docs/architecture.html`. 사용법 = `README.md`. 확장 계획 = `docs/plans/2026-06-19-packs-expansion.md`.
 > (세션별 상세 로그는 git history + CHANGELOG 참조 — 이 문서는 현재 상태 + 불변 설계 결정만.)
 
-## 현재 상태 — ✅ v2.2.0 (PR 대기 / 미태그)
-- **v2.2.0 (작업 중, `feat/srs-gate` 브랜치 → PR base main)**: SRS 게이트 + 엔진 `settings` kind 추가. 테스트 15개 green. *아직 미태그·미릴리스* — 머지 후 릴리스 절차(아래 운영) 수행.
-- 직전 릴리스: v2.1.2(`releases/latest`). 실프로젝트(ov-fe-edocument) 적용·검증 완료. gh 계정 link-readypost.
+## 현재 상태 — ✅ v2.2.0 (`releases/latest`)
+- 원격 `main` = v2.2.0 태그 커밋(PR #1 squash 머지). CI green(테스트 15). Release 워크플로 success, `releases/latest` = v2.2.0 검증(`curl …/latest/bundle.mjs | node - version` → 2.2.0). working tree 클린. gh 계정 link-readypost.
+- **v2.2.0**: SRS 게이트 + 엔진 `settings` kind 추가.
+- ⚠️ 실프로젝트(ov-fe-edocument) `--srs-gate` 설치 후 실세션 훅 인식·차단/승인 동작은 **미검증**(`_ccx` 마커 무시 전제 실증 1회 필요).
 - **v2.2.0 신규**:
   - **`core/srs-gate`**(opt-in `--srs-gate`, 기본 off) — "작업 전 SRS 강제". PreToolUse 훅이 미승인 소스 편집 차단(우회 불가). `specs/.active` 포인터 + `specs/.approvals/<SRS>.json` 승인 + 대상 브랜치 일치. 플랫 일련번호 `specs/NNNN_<slug>.md` + frontmatter(ticket/epic 으로 묶음). 훅 3종(gate/prompt/approve)·룰·스킬 `/srs`·템플릿.
   - **엔진 `kind: "settings"`** — `.claude/settings.json` JSON 멱등 병합(`_ccx` 마커, 사용자 키 보존, remove 정리). Claude Code 훅 자동 설치 기반. (기존 3 kind=doc/static/hook → 4종)
