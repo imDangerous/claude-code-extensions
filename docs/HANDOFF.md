@@ -4,13 +4,11 @@
 > 설계 시각화: `docs/architecture.html`. 사용법: `README.md`.
 
 ## 현재 상태 — ✅ v2.1.0 릴리스 (2026-06-19, 팩 확장)
-- **릴리스됨**: 태그 `v2.0.0`·`v2.0.1`·`v2.0.2` 게시(자산 bundle.mjs+install.mjs), `releases/latest`=**v2.0.2**. release.yml success. 게시 install.mjs 실설치 종단 검증.
-- **v2.0.2 내용**: 제네릭 `biome.json`에 비자명 설정 근거 **JSONC 주석 2줄**(CSS 제외=Tailwind 드리프트 방지 / components noArrayIndexKey=리스트 패턴). biome.json은 JSONC로 Biome가 읽음(build는 raw 임베드, JSON.parse 안 함 — 검증). 운영 메모를 룰 문서(.md, Managed)가 아닌 **createOnly·project-owned config 옆**에 둬 안전.
-- **원격 `main` HEAD = v2.0.2 커밋** (feature 4커밋 FF + install 힌트 fix + v2.0.1 + HANDOFF + v2.0.2). working tree 클린.
-- v2.0.1 릴리스 노트 작성·반영(패치 델타 + v2.0 전체 하이라이트). gh 계정은 link-readypost로 복구.
+- **릴리스됨**: 태그 `v2.0.0`~`v2.0.2`·**`v2.1.0`** 게시(자산 bundle.mjs+install.mjs), `releases/latest`=**v2.1.0**. release.yml success. 게시 install.mjs 실설치 종단 검증(`ccx version`=2.1.0, list에 backend 포함). 릴리스 노트 작성·반영. gh 계정 link-readypost 복구.
+- **원격 `main` HEAD = v2.1.0 커밋(`7a5de4c`)**. working tree 클린.
 - 구조: `packs/<pack>/{pack.json, <module>/{module.json, files/}}` · `src/cli.mjs`(엔진) · `build.mjs`(임베드) · `src/install.mjs`.
 - 명령: `ccx <pack> init|check|doctor|update|remove` · `ccx <pack> <module> <cmd>` · `ccx apply` · `ccx list`. (BREAKING: v1 `ccx <category> <module>` 폐기)
-- packs(**전부 실콘텐츠**): **core**(git·agent-workflow·qa-reviewer·orchestrate) · **js**→core(architecture·biome·typescript) · **web**→js(nextjs·tailwind·vitest, 에이전트 8+스킬 2) · **app**→js(expo, 에이전트 8+스킬 2). app/web 파이프라인 대칭(plan→design→build→QA).
+- packs(**전부 실콘텐츠, 3타겟**): **core**(git·agent-workflow·qa-reviewer·orchestrate·validation·observability·entropy·git-branching) · **js**→core(architecture·biome·typescript·react·validation-zod·git-hooks) · **web**→js(nextjs·tailwind·vitest·harness-web·observability-web, 에이전트 8+스킬 2) · **app**→js(expo, 에이전트 8+스킬 2) · **backend**→core(spring·validation/observability/testing-backend, Kotlin/Java variant). @import 2계층(always-on 헌법급만, 나머지 색인).
 - 릴리스 절차(계정 전환 push 명령)는 아래 "릴리스 절차" 참고. 패치 시: package.json + README/install.mjs 핀 bump → build → 커밋 → 태그 push.
 
 ## 팩 확장 (계획: `docs/plans/2026-06-19-packs-expansion.md`)
