@@ -129,7 +129,7 @@
         <div class="packgrid">
           <div class="pack">
             <div class="pt"><span class="dot" style="background:#c98ad6"></span>js</div>
-            <div class="mods"><span class="mod">biome</span><span class="mod">vitest</span><span class="mod">typescript</span><span class="mod">react</span></div>
+            <div class="mods"><span class="mod">architecture</span><span class="mod">biome</span><span class="mod">typescript</span><span class="mod">react</span><span class="mod">validation-zod</span><span class="mod">git-hooks</span></div>
           </div>
           <div class="pack">
             <div class="pt"><span class="dot" style="background:#c98ad6"></span>jvm</div>
@@ -142,7 +142,7 @@
         </div>
       </div>
 
-      <div class="arrowdown">▼ framework → language 에 의존</div>
+      <div class="arrowdown">▼ web/app → language(js) · backend → core 직속(JVM)</div>
 
       <div class="layer l-packs">
         <div class="lh">
@@ -153,7 +153,7 @@
         <div class="packgrid">
           <div class="pack">
             <div class="pt"><span class="dot" style="background:var(--web)"></span>web <span class="req">→ js</span><span class="con fe">frontend</span></div>
-            <div class="mods"><span class="mod">nextjs</span><span class="mod">tailwind v3*/v4</span></div>
+            <div class="mods"><span class="mod">nextjs</span><span class="mod">tailwind v3*/v4</span><span class="mod">vitest</span><span class="mod">harness-web</span><span class="mod">observability-web</span></div>
             <div class="neutral" style="margin-top:7px">tailwind = <b>variant</b>, 기본 <b>v3</b>(레거시), v4 옵트인</div>
           </div>
           <div class="pack">
@@ -162,8 +162,9 @@
             <div class="neutral" style="margin-top:7px">Expo 기본 · <b>baseline SDK 56</b>(릴리스마다 bump)</div>
           </div>
           <div class="pack">
-            <div class="pt"><span class="dot" style="background:var(--spring)"></span>spring <span class="req">→ jvm</span><span class="con be">backend</span></div>
-            <div class="mods"><span class="mod" style="color:#7a8197">(future)</span></div>
+            <div class="pt"><span class="dot" style="background:var(--spring)"></span>backend <span class="req">→ core</span><span class="con be">backend</span></div>
+            <div class="mods"><span class="mod">spring</span><span class="mod">validation-backend</span><span class="mod">observability-backend</span><span class="mod">testing-backend</span></div>
+            <div class="neutral" style="margin-top:7px">Spring · <b>Kotlin/Java variant</b>(<code>--lang</code>) · JVM이라 core 직속(js 비경유)</div>
           </div>
         </div>
         <div class="neutral"><code>ccx web init</code> → <b>core + js + web 자동 동반</b>(framework가 <code>requires</code> 선언). <b>variant</b>=사용자 선택 · <b>baseline</b>=현행 최신 추적 — 둘 다 메타 재평가 루프가 bump.</div>
@@ -195,28 +196,31 @@
 
   <!-- APPLY -->
   <section>
-    <h2>3 · <code>ccx apply</code> — CLAUDE.md에 표준 주입 (항상 읽히게)</h2>
+    <h2>3 · <code>ccx apply</code> — CLAUDE.md 2계층 주입 (always-on + 색인)</h2>
     <div class="cols">
       <div class="card">
 <pre><span class="cm"># CLAUDE.md (프로젝트 루트)</span>
 <span class="mng2">&lt;!-- ccx:managed:start --&gt;</span>
 <span class="cm">## AI 표준 (ccx 관리 — 직접 수정 금지)</span>
-@.claude/rules/git.md
-@.claude/rules/qa-reviewer.md
-@.claude/rules/nextjs.md
+<span class="cm"># always-on: ccx:always 마커 헌법급 원칙만</span>
+@.claude/rules/agent-workflow.md
+@.claude/rules/validation.md
+@.claude/rules/entropy.md
+<span class="cm">### 상세 규약 (작업 시 읽기 — always-on 아님)</span>
+- .claude/rules/nextjs.md — Next.js App Router
+- .claude/rules/tailwind.md — Tailwind
 <span class="mng2">&lt;!-- ccx:managed:end --&gt;</span>
 
 <span class="cm"># ↓ 여기부터 프로젝트 소유 (자유 편집)</span>
-## 스택 / 도메인 / 용어
-<span class="cm">… 프로젝트가 직접 작성 …</span></pre>
+## 스택 / 도메인 / 용어</pre>
       </div>
       <div class="card">
         <h3 style="margin-top:0">왜</h3>
         <ul>
           <li><b>설치 = 자동 로드 아님.</b> Claude Code는 <code>CLAUDE.md</code>와 그 <code>@import</code>를 읽는다.</li>
-          <li><code>ccx apply</code>가 설치된 pack의 룰을 <b>관리 블록</b>에 <code>@import</code>로 넣어 <b>반드시 읽히게</b> 한다.</li>
+          <li><b>2계층</b> — <code>&lt;!-- ccx:always --&gt;</code> 마커(헌법급 원칙)만 <code>@import</code>(always-on), 나머지는 <b>색인</b>(경로+제목)으로 두고 해당 영역 작업 시 읽음 → always-on 컨텍스트 최소화(context rot 방지).</li>
           <li>관리 블록만 ccx 소유 → <code>update</code>가 블록만 갱신, <b>나머지 CLAUDE.md는 보존</b>.</li>
-          <li><code>doctor</code>가 “설치됐는데 미주입” 같은 드리프트를 잡는다.</li>
+          <li>서브에이전트·스킬은 @import 아님(자동 인식). <code>doctor</code>가 드리프트를 잡는다.</li>
         </ul>
       </div>
     </div>

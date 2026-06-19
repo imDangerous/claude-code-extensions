@@ -23,7 +23,7 @@ plan → design → build(스택 pack) → QA(qa-reviewer) → [FAIL] fix(≤N) 
 6. **메타 재평가** — 모델/SDK 릴리스마다 스캐폴딩 재평가·가지치기.
 
 ## concern 연동
-설치된 framework pack의 `concern`(frontend/backend)에 따라 동원 에이전트 세트가 달라진다(FE: design/ui/a11y, BE: api/db/security).
+설치된 framework pack의 `concern`(frontend/backend)에 따라 동원 자산이 달라진다 — **frontend**: 기획→design→build→inspect 에이전트 파이프라인(idea/product/spec-planner·design-architect·feature-builder·api-integrator·ui-developer·inspector). **backend**: 현재 룰 기반(spring·validation/observability/testing-backend) — 검수 에이전트는 추후.
 
 ## 사용
 사용자 요청 → 단계로 분해 → 각 단계 에이전트/스킬 호출 → 게이트 통과 시 진행 → 막히면 보고.

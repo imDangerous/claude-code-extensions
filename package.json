@@ -6,7 +6,7 @@
   "license": "MIT",
   "description": "ccx — install & manage Claude Code assets (rules, skills, commands, subagents) per pack (layered core→js→web/app) via one CLI. Unofficial.",
   "bin": { "ccx": "dist/bundle.mjs" },
-  "scripts": { "build": "node build.mjs" },
+  "scripts": { "build": "node build.mjs", "test": "node build.mjs && node --test" },
   "repository": { "type": "git", "url": "github:imDangerous/claude-code-extensions" },
   "keywords": ["claude", "claude-code", "ccx", "skills", "commands", "subagents", "commitlint", "gitmoji"]
 }
