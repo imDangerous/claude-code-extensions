@@ -1,9 +1,8 @@
 <!-- Managed by ccx -->
 # Git 커밋/PR 규약 (ccx 관리)
 
-> 이 파일과 `scripts/git/*`, `commitlint.config.cjs`, `.husky/*`, 커밋 관련 워크플로는
-> **`ccx`이 관리**한다. 직접 수정하지 말 것 — 값은 `.claude/extends/config.json`을 바꾸고
-> `ccx rules git update` / `ccx rules git doctor`로 갱신·점검한다.
+> **커밋 컨벤션은 전 스택 공통**(`core/git`). husky/commitlint/스크립트/CI 워크플로 **구현은 Node 전용 `js/git-hooks`** 모듈이 배포한다(JVM 등 비-Node 스택은 컨벤션만 적용, 훅은 스택 도구로).
+> 직접 수정 금지 — 값은 `.claude/extends/config.json`을 바꾸고 `ccx core git update`(컨벤션)·`ccx js git-hooks update`(훅)로 갱신, `ccx <pack> <module> doctor`로 점검.
 
 ## 커밋 메시지
 
