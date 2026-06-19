@@ -1,0 +1,9 @@
+{
+  "name": "harness-web",
+  "deps": [],
+  "husky": false,
+  "questions": [],
+  "targets": [
+    { "src": "harness-web.md", "dest": ".claude/rules/harness-web.md", "kind": "doc" }
+  ]
+}

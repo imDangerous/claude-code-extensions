@@ -1,0 +1,9 @@
+{
+  "name": "observability-web",
+  "deps": [],
+  "husky": false,
+  "questions": [],
+  "targets": [
+    { "src": "observability-web.md", "dest": ".claude/rules/observability-web.md", "kind": "doc" }
+  ]
+}
