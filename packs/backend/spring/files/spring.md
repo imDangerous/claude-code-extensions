@@ -23,6 +23,4 @@
 - REST 규약·정확한 상태코드. 입력 검증은 `validation-backend`(`@Valid`). 페이징/정렬 표준화.
 - 프로파일별 설정(`application-{env}`). **시크릿은 환경변수/시크릿 매니저** — 소스·이미지·VCS에 금지.
 
-## 언어 (`lang`)
-- **kotlin**: `data class`·null-safety(`?`/`!!` 금지 지향)·`val` 우선·확장함수 매핑.
-- **java**: `record` DTO·`Optional`(필드 아닌 반환)·불변 우선·Lombok은 팀 정책 따름.
+> 언어별 관용(kotlin/java)은 `spring-lang.md`(config `lang`에 따라 해당 언어만 배포).

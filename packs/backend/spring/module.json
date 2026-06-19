@@ -6,6 +6,8 @@
     { "key": "lang", "type": "string", "default": "kotlin", "prompt": "백엔드 언어 (kotlin/java)", "flag": "lang" }
   ],
   "targets": [
-    { "src": "spring.md", "dest": ".claude/rules/spring.md", "kind": "doc" }
+    { "src": "spring.md", "dest": ".claude/rules/spring.md", "kind": "doc" },
+    { "src": "spring-kotlin.md", "dest": ".claude/rules/spring-lang.md", "kind": "doc", "enabledIf": "lang", "equals": "kotlin" },
+    { "src": "spring-java.md", "dest": ".claude/rules/spring-lang.md", "kind": "doc", "enabledIf": "lang", "equals": "java" }
   ]
 }

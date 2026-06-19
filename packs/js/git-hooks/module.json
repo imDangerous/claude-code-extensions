@@ -11,8 +11,8 @@
     { "src": "scripts/git/gitmoji-map.cjs", "dest": ".claude/extends/core/git/gitmoji-map.cjs", "kind": "static" },
     { "src": "scripts/git/gitmoji-commit.cjs", "dest": ".claude/extends/core/git/gitmoji-commit.cjs", "kind": "static", "exec": true },
     { "src": "commitlint.config.cjs", "dest": "commitlint.config.cjs", "kind": "static" },
-    { "src": "husky/prepare-commit-msg", "dest": ".husky/prepare-commit-msg", "kind": "hook" },
-    { "src": "husky/commit-msg", "dest": ".husky/commit-msg", "kind": "hook", "placeholders": { "__COMMITLINT__": "@bin:commitlint" } },
+    { "src": "husky/prepare-commit-msg", "dest": ".husky/prepare-commit-msg", "kind": "hook", "blockId": "core/git" },
+    { "src": "husky/commit-msg", "dest": ".husky/commit-msg", "kind": "hook", "blockId": "core/git", "placeholders": { "__COMMITLINT__": "@bin:commitlint" } },
     {
       "src": "workflows/commit-standards.yml",
       "dest": ".github/workflows/commit-standards.yml",

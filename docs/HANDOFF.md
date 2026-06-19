@@ -3,7 +3,7 @@
 > 작성 2026-06-18, 갱신 2026-06-19. 로컬 경로 `/Users/link/Workspace/claude-code-extensions`. 리모트 `imDangerous/claude-code-extensions`.
 > 설계 시각화: `docs/architecture.html`. 사용법: `README.md`.
 
-## 현재 상태 — ✅ v2.0.2 릴리스 완료 (2026-06-19)
+## 현재 상태 — ✅ v2.1.0 릴리스 (2026-06-19, 팩 확장)
 - **릴리스됨**: 태그 `v2.0.0`·`v2.0.1`·`v2.0.2` 게시(자산 bundle.mjs+install.mjs), `releases/latest`=**v2.0.2**. release.yml success. 게시 install.mjs 실설치 종단 검증.
 - **v2.0.2 내용**: 제네릭 `biome.json`에 비자명 설정 근거 **JSONC 주석 2줄**(CSS 제외=Tailwind 드리프트 방지 / components noArrayIndexKey=리스트 패턴). biome.json은 JSONC로 Biome가 읽음(build는 raw 임베드, JSON.parse 안 함 — 검증). 운영 메모를 룰 문서(.md, Managed)가 아닌 **createOnly·project-owned config 옆**에 둬 안전.
 - **원격 `main` HEAD = v2.0.2 커밋** (feature 4커밋 FF + install 힌트 fix + v2.0.1 + HANDOFF + v2.0.2). working tree 클린.
@@ -20,7 +20,7 @@
 - **Phase 2 완료 (2026-06-19 17차)**: `js/react`(Rules of Hooks·effect 최소화·파생값 렌더계산·key·메모는 측정후·순수성, web+app 공유)·`js/validation-zod`(스키마=SoT·z.infer·경계 parse·공유 스키마, core/validation의 zod 구현). 둘 다 **on-demand**(색인) — 검증: web apply→always-on 5(149줄) 유지·색인 6→8, app도 상속. 새 @import 모델이 의도대로(룰 추가가 always-on 불변).
 - **Phase 3 완료 (2026-06-19 18차)**: web/harness-web(웹 특화 검증 하네스 — build·Lighthouse·preview·RSC 경계·web-inspector 게이트)·web/observability-web(Sentry·Web Vitals·소스맵·PII 스크럽). on-demand. web apply→always-on 5 유지·색인 8→10.
 - **Phase 4 완료 (2026-06-19 19차) — backend(Spring) 팩 신설, 3타겟 비전 실현**: pack backend(requires core, concern:backend) + 모듈 spring(계층·DI·트랜잭션·DTO·예외, lang=kotlin/java 질문)·validation-backend(Bean Validation)·observability-backend(Micrometer/OTel/actuator)·testing-backend(JUnit5+MockK/Mockito·슬라이스·Testcontainers). 전부 on-demand. **검증: ccx backend init→core+backend, Node 산출물 0(git 분리 효과), apply always-on 4개(architecture(js) 미포함 — 백엔드에 프론트 룰 안 옴, 레이어드 설계 검증)**. 빌드도구는 Gradle(Kotlin DSL) 기본 가정(도구 비종속). lang variant는 현재 config+룰 텍스트 수준(코드 스캐폴드 분기는 추후).
-- 남은: Phase 5(선택 — backend 검수 에이전트 be-reviewer·app observability). 정식 릴리스(v2.1.0) 시점 결정. 미해결: entropy 측정 자동화·backend 빌드도구(Gradle/Maven)·observability 도구 고정도·backend 에이전트 네이밍.
+- **적대적 리뷰 후 v2.1.0 (2026-06-19 20차)**: 독립 리뷰가 3 must-fix 발견·수정 — ① [CRITICAL] git 분리 훅 블록 id 마이그레이션: js/git-hooks 훅에 blockId="core/git" + 엔진 render/classify/writeTarget/remove에 t.blockId 적용 → v2.0.2 재init 시 중복 훅 해소(검증: commitlint 1회). ② [MAJOR] lang variant 실제화: spring 언어 섹션을 spring-lang.md(kotlin/java) 분기 타깃으로(enabledIf+equals) → --lang이 실제 파일 분기(검증). ③ [MAJOR] MARK_ALWAYS를 전체 HTML주석 매칭으로(산문 ccx:always 오분류 방지). + 버전 2.1.0 bump. 남은(선택): Phase 5(be-reviewer·app observability). 미해결: entropy 측정 자동화·backend 빌드도구(Gradle/Maven)·observability 도구 고정도·backend 에이전트 네이밍.
 
 ## 검증된 동작 (실측)
 - `ccx web init` → core+js+web 자동 동반(requires), 전 타입 설치, 공유 config(`.claude/extends/config.json`, 합집합·중복제거).

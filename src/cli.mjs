@@ -19,7 +19,7 @@ const CONFIG = join('.claude', 'extends', 'config.json');
 const CLAUDE = 'CLAUDE.md';
 const CM_START = '<!-- ccx:managed:start -->';
 const CM_END = '<!-- ccx:managed:end -->';
-const MARK_ALWAYS = 'ccx:always'; // 룰 파일에 이 마커가 있으면 always-on(@import), 없으면 색인만(on-demand)
+const MARK_ALWAYS = '<!-- ccx:always -->'; // 이 HTML 주석 마커가 있는 룰만 always-on(@import), 없으면 색인(on-demand). 산문에 'ccx:always' 언급해도 오분류 안 되도록 전체 주석으로 매칭.
 
 const c = {
   ok: (m) => console.log(`\x1b[32m[✓]\x1b[0m ${m}`),
@@ -90,6 +90,7 @@ const resolvePM = (cfg, root) => (cfg.packageManager && cfg.packageManager !== '
 
 // ── render / classify / write (id = pack/module) ──────────────────
 function render(t, files, cfg, pm, id) {
+  id = t.blockId || id; // 훅 블록 마커 id 고정(모듈 이동 후 마이그레이션) — 예: js/git-hooks가 core/git 블록 유지
   let s = files[t.src].replaceAll('__CCX_ID__', id);
   if (t.placeholders) for (const [ph, v] of Object.entries(t.placeholders)) s = s.replaceAll(ph, v === '@ciInstall' ? ciInstall(pm) : typeof v === 'string' && v.startsWith('@bin:') ? binRun(pm, v.slice(5)) : v);
   if (t.blocks) for (const b of t.blocks) {
@@ -113,6 +114,7 @@ function extractBlock(content, id) {
   return s === -1 || e === -1 ? null : L.slice(s, e + 1).join('\n');
 }
 function classify(root, t, rendered, id) {
+  id = t.blockId || id;
   const p = join(root, t.dest);
   if (!existsSync(p)) return 'CREATE';
   if (t.createOnly) return 'KEEP';
@@ -129,6 +131,7 @@ function classify(root, t, rendered, id) {
 const targetEnabled = (t, cfg) => (!t.enabledIf ? true : t.equals !== undefined ? cfg[t.enabledIf] === t.equals : !!cfg[t.enabledIf]);
 const activeTargets = (mf, cfg) => mf.targets.filter((t) => targetEnabled(t, cfg));
 function writeTarget(root, t, rendered, status, id) {
+  id = t.blockId || id;
   const p = join(root, t.dest);
   if (t.kind === 'hook') {
     if (!existsSync(p)) write(p, rendered);
@@ -313,7 +316,7 @@ function cmdGeneric(root, packName, cmd, args) {
       const p = join(root, t.dest);
       if (!existsSync(p)) continue;
       if (t.kind === 'hook') {
-        const cur = read(p).split('\n'); const [s, e] = findBlock(cur, id);
+        const cur = read(p).split('\n'); const [s, e] = findBlock(cur, t.blockId || id);
         if (s === -1) { c.warn(`skip ${t.dest}`); continue; }
         cur.splice(s, e - s + 1);
         const rest = cur.join('\n').trim();
