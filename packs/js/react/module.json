@@ -1,0 +1,9 @@
+{
+  "name": "react",
+  "deps": [],
+  "husky": false,
+  "questions": [],
+  "targets": [
+    { "src": "react.md", "dest": ".claude/rules/react.md", "kind": "doc" }
+  ]
+}

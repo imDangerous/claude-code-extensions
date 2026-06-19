@@ -1,0 +1,9 @@
+{
+  "name": "validation-zod",
+  "deps": [],
+  "husky": false,
+  "questions": [],
+  "targets": [
+    { "src": "validation-zod.md", "dest": ".claude/rules/validation-zod.md", "kind": "doc" }
+  ]
+}

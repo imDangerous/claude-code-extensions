@@ -17,7 +17,8 @@
 - 비전: **React(web)·Expo(app)·Spring(backend)** 3타겟. backend 팩 신설 + web/core 룰 충실화. 확정: backend=Kotlin/Java variant·entropy=복잡도예산·공통룰 js공유·단계적.
 - **Phase 1 완료 (2026-06-19 15차)**: core 원칙 룰 4개 신설 — `validation`(경계 검증·fail-closed)·`observability`(구조적 로깅·상관ID·에러추적·PII금지)·`entropy`(예산: 파일300/함수50/순환복잡도10/중첩3/중복3)·`git-branching`(trunk-based, **opt-in** `--git-branching`). core init→ validation/observability/entropy 항상 배포·git-branching opt-out 기본(검증). entropy↔biome: complexity off 유지(cyclomatic≠cognitive — 룰에 문서화, 강제 안 함).
 - **@import 2계층 모델 도입 (2026-06-19 16차) — 예산 해결**: `apply`가 룰 파일의 `<!-- ccx:always -->` 마커로 분기 — always-on(@import)는 헌법급 원칙만(agent-workflow·validation·observability·entropy·architecture = **149줄**, 200 이하), 나머지(nextjs·tailwind·vitest·biome·typescript·git)는 **상세 색인**(경로+제목)만 두고 해당 영역 작업 시 읽음. 검증: web apply→"always-on 5 @import + 색인 6". 엔진 `MARK_ALWAYS`·cmdApply 분기. agent-workflow.md의 "200줄"을 *always-on 최소화 원칙*으로 재서술(숫자 아님). **원칙**: 200은 하드캡이 아니라 "always-on 최소화·just-in-time 로드"(Anthropic context engineering) — 룰 추가는 기본 on-demand, 전 작업 적용 원칙만 always.
-- 남은: Phase 2(js/react·validation-zod) → 3(web harness-web·observability-web) → 4(backend Spring 팩) → 5(선택 에이전트). 미해결: entropy 측정 자동화·backend 빌드도구(Gradle/Maven)·observability 도구 고정도·backend 에이전트 네이밍.
+- **Phase 2 완료 (2026-06-19 17차)**: `js/react`(Rules of Hooks·effect 최소화·파생값 렌더계산·key·메모는 측정후·순수성, web+app 공유)·`js/validation-zod`(스키마=SoT·z.infer·경계 parse·공유 스키마, core/validation의 zod 구현). 둘 다 **on-demand**(색인) — 검증: web apply→always-on 5(149줄) 유지·색인 6→8, app도 상속. 새 @import 모델이 의도대로(룰 추가가 always-on 불변).
+- 남은: Phase 3(web harness-web·observability-web) → 4(backend Spring 팩) → 5(선택 에이전트). 미해결: entropy 측정 자동화·backend 빌드도구(Gradle/Maven)·observability 도구 고정도·backend 에이전트 네이밍.
 
 ## 검증된 동작 (실측)
 - `ccx web init` → core+js+web 자동 동반(requires), 전 타입 설치, 공유 config(`.claude/extends/config.json`, 합집합·중복제거).
