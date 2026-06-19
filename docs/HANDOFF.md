@@ -6,6 +6,7 @@
 
 ## 현재 상태 — ✅ v2.2.1 (`releases/latest`)
 - 원격 `main` = v2.2.1 태그. CI green(테스트 16). Release 워크플로 success, `releases/latest` = v2.2.1. 로컬 글로벌 ccx·실프로젝트(ov-fe-edocument) 모두 v2.2.1로 업데이트 완료.
+- ov-fe-edocument srs-gate 설치 커밋 = `ff6274b`(브랜치 `develop`, 리모트 미연결이라 미푸시). `🔧 ccx SRS 게이트(srs-gate) 설치`. doctor 7파일 정상·게이트 차단 동작 확인.
 - **v2.2.0**: SRS 게이트 + 엔진 `settings` kind 추가. **v2.2.1**: 게이트 차단 메시지 옛 경로 fix + hook 스크립트에 `Managed by ccx` sentinel(update/remove 정상화).
 - ✅ **실세션 검증 완료** — ov-fe-edocument에서 nested `claude -p`가 SRS 없는 Write를 실제 차단(`_ccx` 마커 무시 전제 실증). settings 병합이 기존 permissions/$schema 보존도 확인.
 - **v2.2.0 신규**:
