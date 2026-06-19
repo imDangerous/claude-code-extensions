@@ -3,9 +3,10 @@
 > 작성 2026-06-18, 갱신 2026-06-19. 로컬 경로 `/Users/link/Workspace/claude-code-extensions`. 리모트 `imDangerous/claude-code-extensions`.
 > 설계 시각화: `docs/architecture.html`. 사용법: `README.md`.
 
-## 현재 상태 — ✅ v2.0.1 릴리스 완료 (2026-06-19)
-- **릴리스됨**: 태그 `v2.0.0`·`v2.0.1` 게시(자산 bundle.mjs+install.mjs), `releases/latest`=**v2.0.1**. release.yml 워크플로 success. 게시 install.mjs 실설치 종단 검증(`ccx version`=2.0.1).
-- **원격 `main` HEAD = `81cf6b6`** (feature 브랜치 4커밋 FF 머지 + install 힌트 fix + v2.0.1 버전 bump). working tree 클린.
+## 현재 상태 — ✅ v2.0.2 릴리스 완료 (2026-06-19)
+- **릴리스됨**: 태그 `v2.0.0`·`v2.0.1`·`v2.0.2` 게시(자산 bundle.mjs+install.mjs), `releases/latest`=**v2.0.2**. release.yml success. 게시 install.mjs 실설치 종단 검증.
+- **v2.0.2 내용**: 제네릭 `biome.json`에 비자명 설정 근거 **JSONC 주석 2줄**(CSS 제외=Tailwind 드리프트 방지 / components noArrayIndexKey=리스트 패턴). biome.json은 JSONC로 Biome가 읽음(build는 raw 임베드, JSON.parse 안 함 — 검증). 운영 메모를 룰 문서(.md, Managed)가 아닌 **createOnly·project-owned config 옆**에 둬 안전.
+- **원격 `main` HEAD = v2.0.2 커밋** (feature 4커밋 FF + install 힌트 fix + v2.0.1 + HANDOFF + v2.0.2). working tree 클린.
 - v2.0.1 릴리스 노트 작성·반영(패치 델타 + v2.0 전체 하이라이트). gh 계정은 link-readypost로 복구.
 - 구조: `packs/<pack>/{pack.json, <module>/{module.json, files/}}` · `src/cli.mjs`(엔진) · `build.mjs`(임베드) · `src/install.mjs`.
 - 명령: `ccx <pack> init|check|doctor|update|remove` · `ccx <pack> <module> <cmd>` · `ccx apply` · `ccx list`. (BREAKING: v1 `ccx <category> <module>` 폐기)

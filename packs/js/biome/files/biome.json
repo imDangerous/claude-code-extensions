@@ -14,6 +14,7 @@
       "!**/test-results",
       "!**/.claude",
       "!commitlint.config.cjs",
+      // Tailwind 지시어/생성 CSS를 Biome 포매터가 재포맷해 드리프트 유발 → CSS 제외(특히 v4 @theme)
       "!**/*.css",
       "!**/pnpm-lock.yaml"
     ]
@@ -85,6 +86,7 @@
       }
     },
     {
+      // 정적 리스트형 컴포넌트가 많아 index를 key로 쓰는 패턴 의도적 허용
       "includes": ["src/components/**/*"],
       "linter": {
         "rules": {
