@@ -114,7 +114,9 @@
           <span class="mod">git</span><span class="mod">git-workflow</span><span class="mod">qa-reviewer</span>
           <span class="mod">orchestrate</span><span class="mod">plan</span><span class="mod">ideate</span>
           <span class="mod">app-inspector</span><span class="mod">agent-workflow</span><span class="mod">entropy</span>
+          <span class="mod">validation</span><span class="mod">observability</span><span class="mod">git-branching*</span><span class="mod">srs-gate*</span>
         </div>
+        <div class="neutral" style="margin-top:6px"><code>*</code> = opt-in(기본 off). <b>srs-gate</b> = 작업 전 SRS 강제(PreToolUse 훅이 미승인 소스 편집 차단).</div>
         <div class="neutral" style="margin-top:8px">에이전트·스킬은 전부 core에. framework의 <b>concern 태그</b>(frontend/backend)가 orchestrate가 동원할 에이전트 세트를 정함.</div>
       </div>
 
@@ -188,6 +190,7 @@
       <div class="row"><span class="p">.claude/agents/&lt;name&gt;.md</span><span class="t"><span class="pill m">ccx</span> 서브에이전트</span></div>
       <div class="row"><span class="p">.claude/extends/&lt;pack&gt;/config.json</span><span class="t"><span class="pill m">ccx</span> 팩 1개 설정(공유 값) + 헬퍼</span></div>
       <div class="row"><span class="p">commitlint.config.cjs · .husky/* · .github/workflows/*</span><span class="t"><span class="pill m">ccx</span> 프레임워크 강제 위치(고정)</span></div>
+      <div class="row"><span class="p">.claude/settings.json · .claude/hooks/* · specs/</span><span class="t"><span class="pill m">ccx</span> srs-gate(opt-in) — settings는 JSON 멱등 병합(사용자 키 보존)</span></div>
       <div class="row"><span class="p">CLAUDE.md (관리 블록)</span><span class="t"><span class="pill m">ccx apply</span> 설치 pack을 @import 주입</span></div>
       <div class="row"><span class="p">CLAUDE.md (그 외) · 도메인 문서</span><span class="t"><span class="pill o">project</span> 직접 작성</span></div>
     </div>

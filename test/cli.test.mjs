@@ -238,3 +238,15 @@ test('srs-gate 런타임: 미승인 차단 → 승인 → 허용, specs/·미완
   writeFileSync(join(d, 'specs/.active'), 'specs/0002_bad.md');
   assert.equal(hook('srs-gate.mjs', editSrc).code, 2, '미완성 차단');
 });
+
+test('static hook 스크립트: Managed by ccx sentinel → update가 갱신(FOREIGN 스킵 아님)', () => {
+  const d = mkproj();
+  ccx(['core', 'init', '--yes', '--no-install', '--srs-gate'], { dir: d });
+  const p = join(d, '.claude/hooks/srs-gate.mjs');
+  assert.match(read(d, '.claude/hooks/srs-gate.mjs'), /Managed by ccx/, '설치 스크립트에 sentinel');
+  // 관리 스크립트가 드리프트(여전히 sentinel 포함)
+  writeFileSync(p, '#!/usr/bin/env node\n// Managed by ccx\n// drifted\nprocess.exit(0)\n');
+  ccx(['core', 'srs-gate', 'update'], { dir: d });
+  assert.match(read(d, '.claude/hooks/srs-gate.mjs'), /PreToolUse/, 'update가 관리 내용으로 복원');
+  assert.doesNotMatch(read(d, '.claude/hooks/srs-gate.mjs'), /drifted/, '드리프트 제거');
+});
