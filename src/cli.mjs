@@ -113,6 +113,18 @@ function extractBlock(content, id) {
   const [s, e] = findBlock(L, id);
   return s === -1 || e === -1 ? null : L.slice(s, e + 1).join('\n');
 }
+// soleOwner 훅: 현재 id 외의 ccx 블록은 stale(예: v1 `rules/git`, 구 `core/git`) — 감지/제거로 마이그레이션 갭 self-heal.
+const hasForeignCcxBlock = (lines, keepId) => lines.some((l) => l.startsWith(MARK_START) && !l.includes(`ccx:${keepId}`));
+function stripForeignCcxBlocks(text, keepId) {
+  const L = eol(text).split('\n');
+  for (let i = 0; i < L.length; i++) {
+    if (L[i].startsWith(MARK_START) && !L[i].includes(`ccx:${keepId}`)) {
+      const e = L.findIndex((l, j) => j >= i && l.trim() === MARK_END);
+      if (e !== -1) { L.splice(i, e - i + 1); i--; }
+    }
+  }
+  return L.join('\n');
+}
 function classify(root, t, rendered, id) {
   id = t.blockId || id;
   const p = join(root, t.dest);
@@ -120,9 +132,10 @@ function classify(root, t, rendered, id) {
   if (t.createOnly) return 'KEEP';
   const cur = eol(read(p)), ren = eol(rendered);
   if (t.kind === 'hook') {
+    const foreign = t.soleOwner && hasForeignCcxBlock(cur.split('\n'), id); // stale 블록(레거시 id) 존재 → 정리 필요
     const mine = extractBlock(cur, id);
-    if (mine !== null) return mine === extractBlock(ren, id) ? 'IDENTICAL' : 'UPDATE';
-    return 'MERGE';
+    if (mine !== null) return mine === extractBlock(ren, id) && !foreign ? 'IDENTICAL' : 'UPDATE';
+    return foreign ? 'UPDATE' : 'MERGE';
   }
   if (sha(cur) === sha(ren)) return 'IDENTICAL';
   if (cur.includes(SENTINEL)) return 'UPDATE';
@@ -134,14 +147,14 @@ function writeTarget(root, t, rendered, status, id) {
   id = t.blockId || id;
   const p = join(root, t.dest);
   if (t.kind === 'hook') {
-    if (!existsSync(p)) write(p, rendered);
-    else if (status === 'MERGE') write(p, `${read(p).replace(/\s*$/, '')}\n\n${extractBlock(rendered, id)}\n`);
-    else if (status === 'UPDATE') {
-      const cur = read(p).split('\n');
-      const [s, e] = findBlock(cur, id);
-      cur.splice(s, e - s + 1, extractBlock(rendered, id));
-      write(p, cur.join('\n'));
-    }
+    if (!existsSync(p)) { write(p, rendered); chmodSync(p, 0o755); return; }
+    let body = read(p);
+    if (t.soleOwner) body = stripForeignCcxBlocks(body, id); // 레거시/외부 ccx 블록 제거(마이그레이션)
+    const cur = body.split('\n');
+    const [s, e] = findBlock(cur, id);
+    if (s !== -1 && e !== -1) cur.splice(s, e - s + 1, extractBlock(rendered, id)); // 제자리 갱신
+    else { cur.push('', extractBlock(rendered, id)); } // 없으면 추가(MERGE)
+    write(p, `${cur.join('\n').replace(/\n{3,}/g, '\n\n').replace(/\s*$/, '')}\n`);
     chmodSync(p, 0o755);
     return;
   }

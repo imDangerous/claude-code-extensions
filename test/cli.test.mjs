@@ -126,3 +126,27 @@ test('blockId 마이그레이션: 레거시 ccx:core/git 훅 재init 시 중복 
   assert.equal((hook.match(/commitlint/g) || []).length, 1, 'commitlint 1회');
   assert.doesNotMatch(hook, /ccx:js\/git-hooks/, '새 id 블록 추가 안 됨(레거시 id 유지)');
 });
+
+test('soleOwner: v1 레거시 ccx:rules/git orphan 블록 init 시 제거(self-heal)', () => {
+  const d = mkproj();
+  mkdirSync(join(d, '.husky'), { recursive: true });
+  // v1 레이아웃의 orphan 블록(삭제된 파일을 호출 — 커밋 깨짐의 원인)
+  writeFileSync(join(d, '.husky/prepare-commit-msg'),
+    '#!/usr/bin/env sh\n# >>> ccx:rules/git (managed: do not edit between markers) >>>\nnode .claude/extends/rules/git/gitmoji-commit.cjs "$1" "$2"\n# <<< ccx <<<\n');
+  ccx(['web', 'init', '--yes', '--no-install'], { dir: d });
+  const hook = read(d, '.husky/prepare-commit-msg');
+  assert.doesNotMatch(hook, /ccx:rules\/git/, '레거시 orphan 제거됨');
+  assert.doesNotMatch(hook, /extends\/rules\/git/, '삭제된 파일 호출 제거됨');
+  assert.equal((hook.match(/>>> ccx:/g) || []).length, 1, 'ccx 블록 1개만');
+  assert.match(hook, /ccx:core\/git/, '현재 블록 존재');
+});
+
+test('doctor: 레거시 orphan 훅 블록을 stale로 검출(정상으로 안 봄)', () => {
+  const d = mkproj();
+  ccx(['web', 'init', '--yes', '--no-install'], { dir: d });
+  // 현재 블록 옆에 레거시 블록을 끼워넣어 orphan 상황 재현
+  const hp = join(d, '.husky/commit-msg');
+  writeFileSync(hp, `${read(d, '.husky/commit-msg')}\n# >>> ccx:rules/git (managed) >>>\nnode gone.cjs\n# <<< ccx <<<\n`);
+  const out = ccx(['js', 'git-hooks', 'doctor'], { dir: d, expectFail: true });
+  assert.match(out, /commit-msg/, 'doctor가 commit-msg 이슈로 보고');
+});
