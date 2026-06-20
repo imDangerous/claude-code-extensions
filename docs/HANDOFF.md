@@ -4,11 +4,12 @@
 > 릴리스 이력 = `CHANGELOG.md`. 설계 시각화 = `docs/architecture.html`. 사용법 = `README.md`. 확장 계획 = `docs/plans/2026-06-19-packs-expansion.md`.
 > (세션별 상세 로그는 git history + CHANGELOG 참조 — 이 문서는 현재 상태 + 불변 설계 결정만.)
 
-## 현재 상태 — 🚧 v2.4.0 (로컬 커밋 — 미푸시/미릴리스) · 직전 릴리스 v2.2.1
+## 현재 상태 — ✅ v2.4.0 (`releases/latest`) · 이전 v2.2.1
 - **v2.4.0(로컬)**: `HANDOFF.md` **srs-gate 예외**(승인 없이 편집 — 게이트 마찰로 핸드오프가 드리프트하던 문제 해소) + **완료(done) 절차에 HANDOFF 갱신** 명문화(룰/스킬/템플릿). SRS 원장(per-task) ↔ HANDOFF(한눈 현재상태) 역할 구분. (이 항목 자체가 그 관행의 첫 적용.)
 - **v2.3.0(로컬)**: `core/srs-gate` **검수 게이트(review-gate, Stop 훅)** — srs-gate(작업 전 spec)의 **대칭 짝**, 개발 후 평가자 검수 강제. active SRS 가 `status: done` 인데 검수 PASS 기록(`specs/.reviews/<SRS>.json`)이 없으면 세션 종료 차단(구현 중·우회는 통과). `srs-review.mjs` 기록 헬퍼 · settings `Stop`(_ccx) · 룰/스킬/템플릿 동반(`enabledIf: srsGate`). + **commitlint `subject-case` 완화** `[2,'never',['upper-case']]`(대문자 시작 제목 허용, SHOUTING만 차단). + **SRS 자리표시자 규약**(`<...>`=placeholder 전용, 리터럴은 `{...}`). 테스트 **17**(+review-gate 런타임), 빌드·테스트 green.
-  - ⚠️ **아직 push/release 안 됨** — 릴리스 시 `releases/latest`·README install 핀 갱신 필요. 전역 글로벌 ccx 는 여전히 v2.2.1.
-- 직전 릴리스 v2.2.1: 원격 `main` 태그, CI green. ov-fe-edocument srs-gate 설치 커밋 `ff6274b`(브랜치 `develop`). v2.3.0 review-gate 는 ov-fe-edocument 에 **로컬 선반영**(commit 1b05072 등) — ccx 정식 반영(release 후 `update`)으로 일원화 예정.
+  - ✅ **릴리스 완료** — `main` push + `v2.4.0` 태그 → Release 워크플로 success, `releases/latest`=v2.4.0(bundle.mjs·install.mjs). CI green. 로컬 글로벌 ccx 도 v2.4.0 동기화.
+- ov-fe-edocument 반영 완료: v2.3.0 review-gate 로컬 선반영(commit 1b05072) → **v2.4.0 ccx 정식 반영으로 일원화**(SRS 0006, `core srs-gate update`+`js git-hooks update`). 로컬 수기 hook→ccx 관리본, settings Stop 중복 제거, CLAUDE.md 축약. doctor 정상.
+- 이전 릴리스 v2.2.1: SRS 게이트 + settings kind.
 - **v2.2.0**: SRS 게이트 + 엔진 `settings` kind. **v2.2.1**: 차단 메시지 경로 fix + hook `Managed by ccx` sentinel.
 - ✅ **실세션 검증(v2.2.x)** — ov-fe-edocument 에서 SRS 없는 Write 실제 차단, settings 병합이 permissions/$schema 보존 확인.
 - **v2.2.0 신규**:
