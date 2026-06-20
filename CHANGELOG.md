@@ -2,6 +2,12 @@
 
 [Keep a Changelog](https://keepachangelog.com) 형식. 설치: `curl -fsSL https://github.com/imDangerous/claude-code-extensions/releases/latest/download/install.mjs | node`
 
+## [2.4.0] — 2026-06-20 — HANDOFF 게이트 예외 + 완료 시 핸드오프 갱신 관행
+### Added
+- **`HANDOFF.md` 게이트 예외** — srs-gate(PreToolUse)가 `HANDOFF.md`(basename) 편집을 `specs/` 처럼 **승인 없이 허용**. 진행상황 핸드오프는 살아있는 메타 문서(작업 산출물 아님)인데, 게이트 마찰 때문에 갱신이 드리프트하던 문제 해소. srs-gate 런타임 테스트에 HANDOFF 예외 어서션 추가(테스트 17 유지).
+### Changed
+- **완료(done) 절차에 HANDOFF 갱신 포함** — 룰(`srs.md`)·스킬(`/srs`)·템플릿(검수 체크)에 "작업 닫을 때 `HANDOFF.md` 현재상태(스냅샷·다음 할 일) 갱신" 명문화. SRS 원장(per-task)과 HANDOFF(한눈 현재상태)의 역할 구분.
+
 ## [2.3.0] — 2026-06-20 — 검수 게이트(개발 후 평가자 검수 강제) + commitlint subject-case 완화
 ### Added
 - **`core/srs-gate` 검수 게이트(review-gate, Stop 훅)** — srs-gate(작업 전 spec)의 **대칭 짝**. 작업 전만 강제하면 "스펙대로 만든 뒤 검수를 건너뛰는" 비대칭이 생기므로, 개발 후 **평가자 검수**를 강제한다. 근거: `agent-workflow.md` 규칙 8(생성자≠평가자)·규칙 13(강제는 훅으로).

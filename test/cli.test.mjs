@@ -213,6 +213,9 @@ test('srs-gate 런타임: 미승인 차단 → 승인 → 허용, specs/·미완
   // specs/ 편집(=SRS 작성)은 항상 허용
   assert.equal(hook('srs-gate.mjs', { cwd: d, tool_input: { file_path: join(d, 'specs/0001_x.md') } }).code, 0, 'specs/ 허용');
 
+  // HANDOFF.md 는 게이트 예외(진행상황 핸드오프 — 승인 없이 허용)
+  assert.equal(hook('srs-gate.mjs', { cwd: d, tool_input: { file_path: join(d, 'docs/HANDOFF.md') } }).code, 0, 'HANDOFF.md 허용');
+
   // SRS 작성 + .active
   mkdirSync(join(d, 'specs'), { recursive: true });
   writeFileSync(join(d, 'specs/0001_feat.md'),

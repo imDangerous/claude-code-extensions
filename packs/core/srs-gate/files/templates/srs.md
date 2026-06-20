@@ -28,6 +28,7 @@ status: draft        # draft → approved → done
 
 ## 검수
 - [ ] 완료(`status: done`) 전 변경분을 평가자(qa-reviewer / UI면 web-inspector)로 검수하고 PASS 기록: `! node .claude/hooks/srs-review.mjs PASS "{evidence}"` (생성자 자기채점 금지)
+- [ ] 완료 시 `HANDOFF.md` 현재상태 갱신(진행상황 스냅샷 — 게이트 예외라 승인 없이 편집 가능)
 
 ## 승인
 - [ ] 승인  (사람이 `! node .claude/hooks/srs-approve.mjs` 로 기록 — 에이전트 금지)

@@ -51,6 +51,7 @@ metadata:
 - 구현이 끝나면 **생성자가 아닌 별도 평가자**로 검수합니다: `qa-reviewer`(필수) + UI 변경 시 `web-inspector`.
 - PASS 면 기록: `! node .claude/hooks/srs-review.mjs PASS "tsc:0 biome:0 qa-reviewer:PASS ..."` (승인과 달리 에이전트가 호출 가능 — 단 verdict 는 평가자 결과여야 함).
 - 그 뒤 SRS `status: done`. 검수 PASS 기록 없이 done 으로 닫으려 하면 `review-gate`(Stop 훅)가 세션 종료를 차단합니다.
+- **`HANDOFF.md` 현재상태 갱신** — 작업을 닫을 때 진행상황 스냅샷(현재상태·다음 할 일)을 최신화합니다. `HANDOFF.md` 는 게이트 예외라 승인 없이 바로 편집할 수 있습니다(없으면 생성).
 
 ## 금지
 - 승인 없이 소스 편집 시도 / `srs-approve.mjs` 를 에이전트가 실행 / 자리표시자를 남긴 채 승인 요청 / SRS를 폴더로 묶기.

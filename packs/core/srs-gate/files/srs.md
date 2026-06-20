@@ -41,7 +41,7 @@ specs/
 - `specs/.approvals/<해당 SRS>.json` 존재(= 사람이 승인)
 - 승인 기록의 대상 브랜치 == 현재 git 브랜치
 
-`specs/**` 편집(=SRS 작성)은 항상 허용됩니다. 긴급 운영자 우회는 `CCX_SRS_OFF=1` (명시적, 상시 사용 금지).
+`specs/**` 편집(=SRS 작성)과 **`HANDOFF.md`(진행상황 핸드오프)** 는 게이트 없이 항상 허용됩니다 — 살아있는 메타 문서라 마찰 없이 최신 유지(작업 산출물 아님). 긴급 운영자 우회는 `CCX_SRS_OFF=1` (명시적, 상시 사용 금지).
 
 ## 검수 게이트 (review-gate, Stop 훅) — 개발 후 평가자 검수 강제
 
@@ -58,6 +58,7 @@ specs/
 
    → `specs/.reviews/NNNN_<slug>.json` 생성(`.approvals/` 와 대칭).
 3. 그 뒤 SRS frontmatter 를 `status: done` 으로 바꿉니다.
+4. **`HANDOFF.md` 현재상태 갱신** — 작업을 닫을 때 진행상황 스냅샷(현재상태·다음 할 일)을 최신화합니다. SRS 원장은 per-task 기록이라 "한눈에 현재 상태"는 HANDOFF 가 담습니다(게이트 예외라 마찰 없음). 없으면 새로 만들어도 됩니다.
 
 **Stop 훅 동작**: active SRS 가 `status: done` 인데 검수 PASS 기록이 없으면 세션 종료를 차단합니다. `done` 이전(구현 중)·비작업 브랜치·검수 기록 존재 시엔 통과 — 구현 중 stop·사용자 질문은 막지 않습니다.
 

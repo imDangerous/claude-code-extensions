@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Managed by ccx — 직접 수정 금지(ccx update로 갱신).
 // ccx SRS 게이트 (PreToolUse: Edit|Write|MultiEdit|NotebookEdit)
-// 승인된 SRS 없이 소스 편집을 차단한다. specs/ 아래 편집(=SRS 작성)만 허용.
+// 승인된 SRS 없이 소스 편집을 차단한다. specs/ 아래 편집(=SRS 작성)·HANDOFF.md(진행상황)만 예외 허용.
 //   통과 조건: specs/.active 가 가리키는 SRS 가 존재 + 내용 채움 + 같은 디렉토리에 .approved + 대상 브랜치 일치.
 //   긴급 우회(운영자 명시): CCX_SRS_OFF=1
 import { existsSync, readFileSync } from 'node:fs';
@@ -22,7 +22,8 @@ if (!target) allow(); // 편집 경로를 못 읽으면 판단 불가 — 통과
 
 const abs = isAbsolute(target) ? target : resolve(cwd, target);
 const rel = relative(cwd, abs).split(sep).join('/');
-if (rel.startsWith('../') || rel === 'specs' || rel.startsWith('specs/')) allow(); // 프로젝트 밖 + SRS 작성은 허용
+// 프로젝트 밖 + SRS 작성(specs/) + 진행상황 핸드오프(HANDOFF.md)는 게이트 없이 허용 — 살아있는 메타 문서(작업 산출물 아님). 마찰 없이 최신 유지.
+if (rel.startsWith('../') || rel === 'specs' || rel.startsWith('specs/') || basename(rel) === 'HANDOFF.md') allow();
 
 const activeFile = join(cwd, 'specs', '.active');
 if (!existsSync(activeFile)) {
