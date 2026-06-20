@@ -1,14 +1,15 @@
 # ccx — 작업 핸드오프 (다음 세션용)
 
-> 갱신 2026-06-19. 로컬 `/Users/link/Workspace/claude-code-extensions` · 리모트 `imDangerous/claude-code-extensions`.
+> 갱신 2026-06-20. 로컬 `/Users/link/Workspace/claude-code-extensions` · 리모트 `imDangerous/claude-code-extensions`.
 > 릴리스 이력 = `CHANGELOG.md`. 설계 시각화 = `docs/architecture.html`. 사용법 = `README.md`. 확장 계획 = `docs/plans/2026-06-19-packs-expansion.md`.
 > (세션별 상세 로그는 git history + CHANGELOG 참조 — 이 문서는 현재 상태 + 불변 설계 결정만.)
 
-## 현재 상태 — ✅ v2.2.1 (`releases/latest`)
-- 원격 `main` = v2.2.1 태그. CI green(테스트 16). Release 워크플로 success, `releases/latest` = v2.2.1. 로컬 글로벌 ccx·실프로젝트(ov-fe-edocument) 모두 v2.2.1로 업데이트 완료.
-- ov-fe-edocument srs-gate 설치 커밋 = `ff6274b`(브랜치 `develop`, 리모트 미연결이라 미푸시). `🔧 ccx SRS 게이트(srs-gate) 설치`. doctor 7파일 정상·게이트 차단 동작 확인.
-- **v2.2.0**: SRS 게이트 + 엔진 `settings` kind 추가. **v2.2.1**: 게이트 차단 메시지 옛 경로 fix + hook 스크립트에 `Managed by ccx` sentinel(update/remove 정상화).
-- ✅ **실세션 검증 완료** — ov-fe-edocument에서 nested `claude -p`가 SRS 없는 Write를 실제 차단(`_ccx` 마커 무시 전제 실증). settings 병합이 기존 permissions/$schema 보존도 확인.
+## 현재 상태 — 🚧 v2.3.0 (로컬 커밋 — 미푸시/미릴리스) · 직전 릴리스 v2.2.1
+- **v2.3.0(로컬)**: `core/srs-gate` **검수 게이트(review-gate, Stop 훅)** — srs-gate(작업 전 spec)의 **대칭 짝**, 개발 후 평가자 검수 강제. active SRS 가 `status: done` 인데 검수 PASS 기록(`specs/.reviews/<SRS>.json`)이 없으면 세션 종료 차단(구현 중·우회는 통과). `srs-review.mjs` 기록 헬퍼 · settings `Stop`(_ccx) · 룰/스킬/템플릿 동반(`enabledIf: srsGate`). + **commitlint `subject-case` 완화** `[2,'never',['upper-case']]`(대문자 시작 제목 허용, SHOUTING만 차단). + **SRS 자리표시자 규약**(`<...>`=placeholder 전용, 리터럴은 `{...}`). 테스트 **17**(+review-gate 런타임), 빌드·테스트 green.
+  - ⚠️ **아직 push/release 안 됨** — 릴리스 시 `releases/latest`·README install 핀 갱신 필요. 전역 글로벌 ccx 는 여전히 v2.2.1.
+- 직전 릴리스 v2.2.1: 원격 `main` 태그, CI green. ov-fe-edocument srs-gate 설치 커밋 `ff6274b`(브랜치 `develop`). v2.3.0 review-gate 는 ov-fe-edocument 에 **로컬 선반영**(commit 1b05072 등) — ccx 정식 반영(release 후 `update`)으로 일원화 예정.
+- **v2.2.0**: SRS 게이트 + 엔진 `settings` kind. **v2.2.1**: 차단 메시지 경로 fix + hook `Managed by ccx` sentinel.
+- ✅ **실세션 검증(v2.2.x)** — ov-fe-edocument 에서 SRS 없는 Write 실제 차단, settings 병합이 permissions/$schema 보존 확인.
 - **v2.2.0 신규**:
   - **`core/srs-gate`**(opt-in `--srs-gate`, 기본 off) — "작업 전 SRS 강제". PreToolUse 훅이 미승인 소스 편집 차단(우회 불가). `specs/.active` 포인터 + `specs/.approvals/<SRS>.json` 승인 + 대상 브랜치 일치. 플랫 일련번호 `specs/NNNN_<slug>.md` + frontmatter(ticket/epic 으로 묶음). 훅 3종(gate/prompt/approve)·룰·스킬 `/srs`·템플릿.
   - **엔진 `kind: "settings"`** — `.claude/settings.json` JSON 멱등 병합(`_ccx` 마커, 사용자 키 보존, remove 정리). Claude Code 훅 자동 설치 기반. (기존 3 kind=doc/static/hook → 4종)
