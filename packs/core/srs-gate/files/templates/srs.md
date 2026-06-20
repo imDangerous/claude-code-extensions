@@ -10,6 +10,7 @@ status: draft        # draft → approved → done
 
 > SRS(작업 요구사항 명세). 프롬프트 1건 = 이 문서 1개. 파일명: `specs/NNNN_<slug>.md`
 > 본문의 자리표시자 `<...>` 를 모두 실제 내용으로 채워야 게이트를 통과합니다.
+> 본문에 남겨야 하는 리터럴 꺾쇠 토큰(명령 usage·파일명 패턴 등)은 `<...>` 대신 `{...}` 로 적습니다(게이트가 `<...>` 를 미완성으로 차단).
 > 가장 중요한 산출물 — 이 문서만으로 작업을 재현(replay)할 수 있어야 합니다.
 
 ## 요청 (원문)
@@ -24,6 +25,9 @@ status: draft        # draft → approved → done
 ## 범위 / 비고
 - 포함:
 - 제외:
+
+## 검수
+- [ ] 완료(`status: done`) 전 변경분을 평가자(qa-reviewer / UI면 web-inspector)로 검수하고 PASS 기록: `! node .claude/hooks/srs-review.mjs PASS "{evidence}"` (생성자 자기채점 금지)
 
 ## 승인
 - [ ] 승인  (사람이 `! node .claude/hooks/srs-approve.mjs` 로 기록 — 에이전트 금지)

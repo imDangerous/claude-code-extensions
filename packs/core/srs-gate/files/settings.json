@@ -16,6 +16,14 @@
           { "type": "command", "command": "node .claude/hooks/srs-prompt.mjs" }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "_ccx": "__CCX_ID__",
+        "hooks": [
+          { "type": "command", "command": "node .claude/hooks/review-gate.mjs" }
+        ]
+      }
     ]
   }
 }

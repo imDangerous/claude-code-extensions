@@ -2,6 +2,16 @@
 
 [Keep a Changelog](https://keepachangelog.com) 형식. 설치: `curl -fsSL https://github.com/imDangerous/claude-code-extensions/releases/latest/download/install.mjs | node`
 
+## [2.3.0] — 2026-06-20 — 검수 게이트(개발 후 평가자 검수 강제) + commitlint subject-case 완화
+### Added
+- **`core/srs-gate` 검수 게이트(review-gate, Stop 훅)** — srs-gate(작업 전 spec)의 **대칭 짝**. 작업 전만 강제하면 "스펙대로 만든 뒤 검수를 건너뛰는" 비대칭이 생기므로, 개발 후 **평가자 검수**를 강제한다. 근거: `agent-workflow.md` 규칙 8(생성자≠평가자)·규칙 13(강제는 훅으로).
+  - **Stop 훅**(`.claude/hooks/review-gate.mjs`) — active SRS 가 `status: done` 인데 검수 PASS 기록(`specs/.reviews/<SRS>.json`)이 없으면 세션 종료를 차단. `done` 이전(구현 중)·비작업 브랜치·검수 기록 존재·`stop_hook_active`·`CCX_SRS_OFF=1` 이면 통과(구현 중 stop·사용자 질문은 막지 않음).
+  - **검수 기록 헬퍼**(`srs-review.mjs`) — `PASS|FAIL` + evidence 를 `specs/.reviews/` 에 기록(`.approvals/` 와 대칭). 에이전트 호출 가능(단 verdict 는 별도 평가자 결과여야 — 생성자 자기채점 금지).
+  - settings.json `Stop` 항목(`_ccx` 마커)·룰(`srs.md`)·스킬(`/srs` 6단계)·템플릿(검수 체크) 동반. `enabledIf: srsGate` — SRS 게이트를 켜면 앞뒤 게이트가 함께 설치.
+- **SRS 자리표시자 표기 규약** — 게이트의 `<...>` 잔재 검사가 리터럴 꺾쇠 토큰(명령 usage·파일명 패턴)까지 오탐하던 문제를 규약으로 해소: `<...>`=미완성 자리표시자 전용, 리터럴은 `{...}`. 룰·템플릿에 명문화 + grep 자가진단 안내.
+### Changed
+- **commitlint `subject-case` 완화** — `@commitlint/config-conventional` 기본값(sentence/start/pascal/upper 전부 차단)이 `DESIGN.md`·`Button`·`Add x` 같은 **대문자 시작 제목**까지 막아 과도. `[2,'never',['upper-case']]` 로 완화 — 전체 대문자(SHOUTING)만 차단, 대문자 시작 허용.
+
 ## [2.2.1] — 2026-06-19 — SRS 게이트 실환경 검증 + 패치
 ### Fixed
 - **게이트 차단 메시지 옛 경로** — "활성 SRS 없음" 차단 문구가 폐기된 폴더 방식(`specs/<작업단위>_<날짜>/NNN_...`)을 안내해 프롬프트 훅/스킬(플랫)과 모순되던 문제. `specs/NNNN_<slug>.md`(일련번호)로 통일.

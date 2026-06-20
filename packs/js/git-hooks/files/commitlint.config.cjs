@@ -26,5 +26,9 @@ module.exports = {
   rules: {
     'type-enum': [2, 'always', EMOJIS],
     'type-case': [0], // 이모지는 대소문자 개념 없음
+    // 제목 대소문자: 전체 대문자(SHOUTING)만 차단. config-conventional 기본은
+    // sentence/start/pascal/upper 전부 차단이라 'DESIGN.md'·'Button'·'Add x' 같은
+    // 대문자 시작 제목까지 막혀 과도 → upper-case 만 남겨 완화.
+    'subject-case': [2, 'never', ['upper-case']],
   },
 };

@@ -183,7 +183,7 @@ test('settings kind: 멱등 + 사용자 키 보존 + remove 시 ccx만 제거', 
   const after = JSON.parse(read(d, '.claude/settings.json'));
   assert.equal(after.model, 'opus', '사용자 키 보존');
   assert.equal(after.hooks.PreToolUse.length, 2, 'ccx1 + 사용자1 (중복 없음)');
-  assert.equal(JSON.stringify(after).split('"_ccx"').length - 1, 2, 'ccx 마커 2개(중복 없음)');
+  assert.equal(JSON.stringify(after).split('"_ccx"').length - 1, 3, 'ccx 마커 3개(PreToolUse·UserPromptSubmit·Stop, 중복 없음)');
   // 멱등: 재설치해도 IDENTICAL
   const chk = ccx(['core', 'srs-gate', 'check'], { dir: d });
   assert.match(chk, /settings\.json\s+IDENTICAL/, '멱등');
@@ -237,6 +237,48 @@ test('srs-gate 런타임: 미승인 차단 → 승인 → 허용, specs/·미완
   writeFileSync(join(d, 'specs/0002_bad.md'), '---\nid: 0002\n---\n# x\n## 요청 (원문)\n<채우세요>\n');
   writeFileSync(join(d, 'specs/.active'), 'specs/0002_bad.md');
   assert.equal(hook('srs-gate.mjs', editSrc).code, 2, '미완성 차단');
+});
+
+test('review-gate 런타임: done+검수기록 없으면 차단 → srs-review PASS 후 허용, 구현중·우회 통과', () => {
+  const d = mkproj();
+  ccx(['core', 'init', '--yes', '--no-install', '--srs-gate'], { dir: d });
+  const hook = (script, payload, env = {}) => {
+    try {
+      execFileSync('node', [join(d, '.claude/hooks', script)],
+        { input: JSON.stringify(payload), cwd: d, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], env: { ...process.env, ...env } });
+      return { code: 0 };
+    } catch (e) { return { code: e.status, out: (e.stdout || '') + (e.stderr || '') }; }
+  };
+
+  mkdirSync(join(d, 'specs'), { recursive: true });
+  writeFileSync(join(d, 'specs/0001_feat.md'),
+    '---\nid: 0001\ndate: 2026-06-20\nbranch: dev\nstatus: draft\n---\n# 기능\n## 요청 (원문)\n만들어줘\n## 목표\n달성\n## 수용 기준\n- [ ] 됨\n## 승인\n- [ ] 승인\n');
+  writeFileSync(join(d, 'specs/.active'), 'specs/0001_feat.md');
+  execFileSync('node', [join(d, '.claude/hooks/srs-approve.mjs'), 'dev'], { cwd: d, stdio: 'pipe' });
+
+  const payload = { cwd: d, stop_hook_active: false };
+
+  // status: approved(구현 중) → 검수 기록 없어도 통과
+  assert.equal(hook('review-gate.mjs', payload).code, 0, '구현 중(approved) 비차단');
+
+  // status: done 으로 변경, 검수 기록 없음 → 차단
+  writeFileSync(join(d, 'specs/0001_feat.md'), read(d, 'specs/0001_feat.md').replace('status: approved', 'status: done'));
+  let r = hook('review-gate.mjs', payload);
+  assert.equal(r.code, 2, 'done + 검수기록 없음 → 차단');
+  assert.match(r.out, /검수/, '검수 안내 메시지');
+
+  // 우회: CCX_SRS_OFF / stop_hook_active
+  assert.equal(hook('review-gate.mjs', payload, { CCX_SRS_OFF: '1' }).code, 0, 'CCX_SRS_OFF 통과');
+  assert.equal(hook('review-gate.mjs', { cwd: d, stop_hook_active: true }).code, 0, 'stop_hook_active 통과');
+
+  // srs-review PASS 기록 → 통과
+  execFileSync('node', [join(d, '.claude/hooks/srs-review.mjs'), 'PASS', 'qa:PASS'], { cwd: d, stdio: 'pipe' });
+  assert.ok(has(d, 'specs/.reviews/0001_feat.json'), '검수 기록 생성');
+  assert.equal(hook('review-gate.mjs', payload).code, 0, '검수 PASS 기록 후 통과');
+
+  // FAIL 기록이면 다시 차단
+  execFileSync('node', [join(d, '.claude/hooks/srs-review.mjs'), 'FAIL', 'qa:FAIL'], { cwd: d, stdio: 'pipe' });
+  assert.equal(hook('review-gate.mjs', payload).code, 2, 'FAIL 기록은 차단 유지');
 });
 
 test('static hook 스크립트: Managed by ccx sentinel → update가 갱신(FOREIGN 스킵 아님)', () => {

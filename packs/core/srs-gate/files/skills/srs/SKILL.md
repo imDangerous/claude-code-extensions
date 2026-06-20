@@ -47,6 +47,11 @@ metadata:
 - 승인되면 `specs/.approvals/NNNN_<slug>.json` 이 생기고 대상 브랜치에서 편집이 열립니다.
 - 대상 브랜치로 전환했는지 확인한 뒤 구현을 진행합니다.
 
+### 6. 구현 후 평가자 검수 → 완료
+- 구현이 끝나면 **생성자가 아닌 별도 평가자**로 검수합니다: `qa-reviewer`(필수) + UI 변경 시 `web-inspector`.
+- PASS 면 기록: `! node .claude/hooks/srs-review.mjs PASS "tsc:0 biome:0 qa-reviewer:PASS ..."` (승인과 달리 에이전트가 호출 가능 — 단 verdict 는 평가자 결과여야 함).
+- 그 뒤 SRS `status: done`. 검수 PASS 기록 없이 done 으로 닫으려 하면 `review-gate`(Stop 훅)가 세션 종료를 차단합니다.
+
 ## 금지
 - 승인 없이 소스 편집 시도 / `srs-approve.mjs` 를 에이전트가 실행 / 자리표시자를 남긴 채 승인 요청 / SRS를 폴더로 묶기.
 
