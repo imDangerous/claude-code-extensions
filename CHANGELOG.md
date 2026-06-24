@@ -2,6 +2,12 @@
 
 [Keep a Changelog](https://keepachangelog.com) 형식. 설치: `curl -fsSL https://github.com/imDangerous/claude-code-extensions/releases/latest/download/install.mjs | node`
 
+## [2.5.0] — 2026-06-24 — qa-reviewer 개선 + qa-reviewer-web 신규 (web 팩)
+### Added
+- **`web/qa-reviewer-web`** — 웹 변경분 전용 검수 에이전트(`.claude/agents/qa-reviewer-web.md`). 기본 Hard Threshold에 웹 레이어 추가: `pnpm build`(RSC 경계·server-only 누수), Playwright E2E(UI 변경 감지 시 의무), axe WCAG 2.2 AA, `console` 사용 grep, 도메인 react import grep, RSC `'use client'` 경계 적절성. UI 변경 포함 SRS에서 `qa-reviewer` 대신 사용.
+### Changed
+- **`core/qa-reviewer`** — SRS 수용 기준 항목별 체크 추가. `specs/.active` 가 존재하면 해당 SRS를 읽어 각 수용 기준 항목 충족 여부를 ✅/❌로 확인(SRS 미사용 프로젝트는 스킵).
+
 ## [2.4.0] — 2026-06-20 — HANDOFF 게이트 예외 + 완료 시 핸드오프 갱신 관행
 ### Added
 - **`HANDOFF.md` 게이트 예외** — srs-gate(PreToolUse)가 `HANDOFF.md`(basename) 편집을 `specs/` 처럼 **승인 없이 허용**. 진행상황 핸드오프는 살아있는 메타 문서(작업 산출물 아님)인데, 게이트 마찰 때문에 갱신이 드리프트하던 문제 해소. srs-gate 런타임 테스트에 HANDOFF 예외 어서션 추가(테스트 17 유지).
