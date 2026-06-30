@@ -14,10 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
+      # corepack로 packageManager 핀(pnpm/yarn@x)을 활성화 — 러너엔 pnpm/yarn이 기본 설치돼 있지
+      # 않다. npm에는 무해. setup-node 뒤에 둬야 Node 교체 후에도 심이 PATH에 남는다.
+      - run: corepack enable
       - run: __INSTALL_CMD__
       - name: Lint PR title
         env:
@@ -28,12 +31,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
+      # corepack로 packageManager 핀(pnpm/yarn@x)을 활성화 — 러너엔 pnpm/yarn이 기본 설치돼 있지
+      # 않다. npm에는 무해. setup-node 뒤에 둬야 Node 교체 후에도 심이 PATH에 남는다.
+      - run: corepack enable
       - run: __INSTALL_CMD__
       - name: Lint commit messages in PR range
         run: >-
